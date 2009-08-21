@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.1.8
-Release:	14%{?dist}
+Release:	15%{?dist}
 Summary:	Voice chat software primarily intended for use while gaming
 
 Group:		Applications/Internet
@@ -248,6 +248,9 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 1.1.8-15
+- rebuilt with new openssl
+
 * Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.8-14
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
