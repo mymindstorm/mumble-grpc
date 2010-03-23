@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.1.8
-Release:	15%{?dist}
+Release:	16%{?dist}
 Summary:	Voice chat software primarily intended for use while gaming
 
 Group:		Applications/Internet
@@ -12,13 +12,15 @@ Source2:	%{name}.desktop
 Source3:	%{name}-overlay.desktop
 #fixes compile error on f10 and above
 Patch0:		compile-fix.patch
+#modify linker to add extra needed libraries (F13+)
+Patch1:		mumble-add-needed.patch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	qt-devel, boost-devel, ice-devel
 BuildRequires:	alsa-lib-devel, alsa-oss-devel
 BuildRequires:	pulseaudio-libs-devel, speex-devel
 BuildRequires:	speech-dispatcher-devel, libogg-devel
-BuildRequires:	libcap-devel, dbus-qt-devel
+BuildRequires:	libcap-devel
 BuildRequires:	desktop-file-utils, openssl-devel
 
 # Due to missing ice-devel on ppc64 arch
@@ -88,6 +90,7 @@ exit 0
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 qmake-qt4 "CONFIG+=no-bundled-speex no-g15 \
@@ -248,28 +251,33 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Tue Mar 22 2010 Mary Ellen Foster <mefoster@gmail.com> - 1.1.8-16
+- Rebuild with new ice-3.4.0
+- Fix UTF-8 characters in changelog
+- Add --add-needed to link line so that it finds librt
+
 * Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 1.1.8-15
 - rebuilt with new openssl
 
 * Sat Jul 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.1.8-14
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
-* Tue May 19 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-13
+* Tue May 19 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-13
 - Fixed mumble-overlay error.
 - Fixed some scriptlets and requirements.
 
-* Mon May 18 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-12
+* Mon May 18 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-12
 - Fixed mumble-server user directory.
 - Added condrestart at postun.
 
-* Sun May 17 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-11
+* Sun May 17 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-11
 - Changed home dir of mumble-server user.
 - Added deps for murmur.
 - Included patch to successfully compile mumble on F10 and F11.
 - Murmur no longer starts at levels 345.
 - Init script no longer calls success twice when you stop it.
 
-* Fri May 15 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-10
+* Fri May 15 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-10
 - Added shadow-utils as pre requirement.
 - Added kde-filesystem as requirement.
 - Added parallel make
@@ -280,17 +288,17 @@ fi
 - Fixed GTK cache update.
 - Fixed a lot of other errors pointed at review request(497441)
 
-* Mon May 4 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-9
+* Mon May 4 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-9
 - Fixed symbolic link error.
 
-* Wed Apr 29 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-8
+* Wed Apr 29 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-8
 - Excluded ppc64 arch due to missing ice-devel dependency.
 
-* Tue Apr 28 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-7
+* Tue Apr 28 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-7
 - Changed user murmur to mumble-server to avoid need of modifying ini and conf files
 - Removed murmurd symlink.
 
-* Mon Apr 27 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-6
+* Mon Apr 27 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-6
 - Added optimization flags.
 - Fixed symlink error while installing binary mumble rpm.
 - Installed mumble.logrotate to right location.
@@ -304,22 +312,22 @@ fi
 - Fixed dbus and sqlite dependency problems.
 - murmur.ini is now based on murmur.ini.system
 
-* Mon Apr 27 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-5
+* Mon Apr 27 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-5
 - Added mumble-overlay as subpackage.
 - Plugins are now subpackage.
 - Fixed a lot of small errors.
 
-* Mon Apr 27 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-4
+* Mon Apr 27 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-4
 - Fixed many errors in murmur.init pointed at review request(497441).
 - Fixed Requires in murmur subpackage.
 
-* Sun Apr 26 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-3
+* Sun Apr 26 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-3
 - Added desktop file for mumble(client).
 - Added man pages for mumble and murmur.
 - Added icons.
 - Scripts are stored to /usr/share/mumble(non-executable).
 
-* Sat Apr 25 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-2
+* Sat Apr 25 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-2
 - Changed murmur.init lockfile to /var/lock/subsys/murmur.
 - Fixed permissions on murmur.ini and mumble-server.ini.
 - Added noreplace to prevent file deleting on new installation.
@@ -327,6 +335,6 @@ fi
 - Mumble is now built against speex from repositories.
 - Fixed a lot of small errors pointed at package review.
 
-* Wed Apr 23 2009 Igor JuriÅ¡koviÄ‡ <juriskovic.igor@gmail.com> 1.1.8-1
+* Wed Apr 23 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-1
 - Initial revision.
 
