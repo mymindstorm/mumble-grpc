@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Mumble overlay
 GenericName=Mumble overlay
-Comment=Mumble with overlay support
+Comment=Overlay daemon for Mumble
 Exec=mumble-overlay
 Icon=mumble
 Terminal=false
