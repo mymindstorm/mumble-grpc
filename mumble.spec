@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.2
-Release:	5%{?dist}
+Release:	6%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -18,7 +18,7 @@ BuildRequires:	qt-devel, boost-devel, ice-devel
 BuildRequires:	alsa-lib-devel, alsa-oss-devel
 BuildRequires:	pulseaudio-libs-devel, speex-devel
 BuildRequires:	speech-dispatcher-devel, libogg-devel
-BuildRequires:	libcap-devel, dbus-qt-devel
+BuildRequires:	libcap-devel
 BuildRequires:	desktop-file-utils, openssl-devel
 BuildRequires:	libXevie-devel, celt-devel
 BuildRequires:	protobuf-compiler, avahi-compat-libdns_sd-devel
@@ -264,6 +264,9 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Sun Apr 18 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-6
+- Fix for missing dbus-qt-devel on >F12
+
 * Sun Apr 18 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-5
 - Merged Mary Ellen Foster's changelog entry
 
