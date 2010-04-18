@@ -1,7 +1,7 @@
 Name:		mumble
-Version:	1.1.8
-Release:	16%{?dist}
-Summary:	Voice chat software primarily intended for use while gaming
+Version:	1.2.2
+Release:	6%{?dist}
+Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
 License:	BSD
@@ -9,11 +9,9 @@ URL:		http://%{name}.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
 Source1:	murmur.init
 Source2:	%{name}.desktop
-Source3:	%{name}-overlay.desktop
+Source3:	%{name}11x.desktop
+Source4:	%{name}-overlay.desktop
 #fixes compile error on f10 and above
-Patch0:		compile-fix.patch
-#modify linker to add extra needed libraries (F13+)
-Patch1:		mumble-add-needed.patch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	qt-devel, boost-devel, ice-devel
@@ -22,15 +20,18 @@ BuildRequires:	pulseaudio-libs-devel, speex-devel
 BuildRequires:	speech-dispatcher-devel, libogg-devel
 BuildRequires:	libcap-devel
 BuildRequires:	desktop-file-utils, openssl-devel
+BuildRequires:	libXevie-devel, celt-devel
+BuildRequires:	protobuf-compiler, avahi-compat-libdns_sd-devel
+BuildRequires:	libsndfile-devel, protobuf-devel
 
-# Due to missing ice-devel on ppc64 arch
+# Due to missing ice on ppc64
 ExcludeArch: ppc64
 
 %description
-Low-latency, high-quality voice communication for gamers. 
-Includes game linking, so voice from other players comes 
+Mumble provides low-latency, high-quality voice communication for gamers. 
+It includes game linking, so voice from other players comes 
 from the direction of their characters, and has echo 
-cancellation so the sound from your loudspeakers
+cancellation so that the sound from your loudspeakers
 won't be audible to other players.
 
 %package -n murmur
@@ -44,8 +45,8 @@ Requires(preun): chkconfig, initscripts
 Requires(postun): initscripts
 
 %description -n murmur
-Murmur(also called mumble-server) is part of VoIP suite Mumble
-primarily intended for gamers. Murmur is server part of suite.
+Murmur(also called mumble-server) is part of the VoIP suite Mumble
+primarily aimed at gamers. Murmur is the server component of the suite.
 
 %package plugins
 Summary:	Plugins for VoIP program Mumble
@@ -58,27 +59,25 @@ for gamers. This plugin allows game linking so the voice of
 players will come from the direction of their characters.
 
 %package overlay
-Summary:	Start Mumble with overlay
+Summary:	Start games with the mumble overlay
 Group:		Applications/Internet
 Requires:	%{name} = %{version}-%{release}
 
 %description overlay
-Mumble-overlay is part of VoIP suite Mumble primarily intended
-for gamers. Mumble-overlay shows players in current channel and linked channels
-in game so you don't need to quit the game to see who is in your channel.
+Mumble-overlay is part of the Mumble VoIP suite aimed at gamers. If supported,
+starting your game with this script will enable an ingame Mumble overlay.
 
 %package protocol
-Summary:	Package to support mumble protocol
+Summary:	Support for the mumble protocol
 Group:		Applications/Internet
 Requires:	%{name} = %{version}-%{release}	
 Requires:	kde-filesystem
 
 %description protocol
-Low-latency, high-quality voice communication for gamers.
-Includes game linking, so voice from other players comes
-from the direction of their characters, and has echo
-cancellation so the sound from your loudspeakers
-won't be audible to other players.
+Mumble is a Low-latency, high-quality voice communication suite
+for gamers. It includes game linking, so voice from other players
+comes from the direction of their characters, and echo cancellation
+so that the sound from your loudspeakers won't be audible to other players.
 
 %pre -n murmur
 getent group mumble-server >/dev/null || groupadd -r mumble-server
@@ -89,39 +88,44 @@ exit 0
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
 
 %build
-qmake-qt4 "CONFIG+=no-bundled-speex no-g15 \
+%{_qt4_qmake} "CONFIG+=no-bundled-speex no-g15 \
 no-embed-qt-translations no-update \
+no-bundled-celt \
 QMAKE_CFLAGS_RELEASE=%{optflags} \
 QMAKE_CXXFLAGS_RELEASE=%{optflags} \
 DEFINES+=PLUGIN_PATH=%{_libdir}/%{name} \
 DEFINES+=DEFAULT_SOUNDSYSTEM=PulseAudio" main.pro
-make %{?_smp_mflags}
+make 
+#%{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
 
 install -pD -m0755 release/%{name} %{buildroot}%{_bindir}/%{name}
+install -pD -m0755 release/%{name}11x %{buildroot}%{_bindir}/%{name}11x
 install -pD -m0755 release/murmurd %{buildroot}%{_sbindir}/murmurd
 ln -s murmurd %{buildroot}%{_sbindir}/%{name}-server
 #ln -s ../sbin/murmurd %{buildroot}%{_sbindir}/murmur 
+
+#translations
+mkdir -p %{buildroot}/%{_datadir}/%{name}/translations
+mkdir -p %{buildroot}/%{_datadir}/%{name}11x/translations
+install -pm 644 src/%{name}/*.qm %{buildroot}/%{_datadir}/%{name}/translations
+install -pm 644 src/%{name}11x/*.qm %{buildroot}/%{_datadir}/%{name}11x/translations
+
 
 mkdir -p %{buildroot}%{_libdir}/%{name}/
 #install -d %{buildroot}%{_libdir}/%{name}/
 #install -p release/libmumble.so* %{buildroot}%{_libdir}/
 # obviusly install doesn't preserve symlinks
 # mumble will complain loudly if it cant find libmumble.so inside /usr/lib/
-install -p release/libmumble.so.%{version} %{buildroot}%{_libdir}/
-ln -s %{_libdir}/libmumble.so.%{version} %{buildroot}%{_libdir}/libmumble.so
-ln -s %{_libdir}/libmumble.so.%{version} %{buildroot}%{_libdir}/libmumble.so.1
-ln -s %{_libdir}/libmumble.so.%{version} %{buildroot}%{_libdir}/libmumble.so.1.1
+install -p release/libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/
 install -p release/plugins/*.so %{buildroot}%{_libdir}/%{name}/
-ln -s %{_libdir}/libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so
-ln -s %{_libdir}/libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so.1
-ln -s %{_libdir}/libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so.1.1
+ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so
+ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so.1
+ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so.1.2
 
 mkdir -p %{buildroot}%{_sysconfdir}/murmur/
 install -pD scripts/murmur.ini.system %{buildroot}%{_sysconfdir}/murmur/murmur.ini
@@ -139,10 +143,11 @@ install -pD -m0644 man/mumble* %{buildroot}%{_mandir}/man1/
 
 #icons
 mkdir -p %{buildroot}%{_datadir}/icons/%{name}
-install -pD -m0644 icons/%{name}.16x16.png %{buildroot}%{_datadir}/icons/hicolor/16x16/apps/%{name}.png
-install -pD -m0644 icons/%{name}.32x32.png %{buildroot}%{_datadir}/icons/hicolor/32x32/apps/%{name}.png
-install -pD -m0644 icons/%{name}.48x48.png %{buildroot}%{_datadir}/icons/hicolor/48x48/apps/%{name}.png
-install -pD -m0644 icons/%{name}.64x64.png %{buildroot}%{_datadir}/icons/hicolor/64x64/apps/%{name}.png
+install -pD -m0644 icons/%{name}.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
+install -pD -m0644 src/mumble11x/resources/%{name}.16x16.png %{buildroot}%{_datadir}/icons/hicolor/16x16/apps/%{name}.png
+install -pD -m0644 src/mumble11x/resources/%{name}.32x32.png %{buildroot}%{_datadir}/icons/hicolor/32x32/apps/%{name}.png
+install -pD -m0644 src/mumble11x/resources/%{name}.48x48.png %{buildroot}%{_datadir}/icons/hicolor/48x48/apps/%{name}.png
+install -pD -m0644 src/mumble11x/resources/%{name}.64x64.png %{buildroot}%{_datadir}/icons/hicolor/64x64/apps/%{name}.png
 
 #logrotate
 install -pD scripts/murmur.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/murmur
@@ -150,6 +155,10 @@ install -pD scripts/murmur.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/murm
 # install desktop file
 desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
 %{SOURCE2}
+
+#install desktop file for mumble11x
+desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
+%{SOURCE3}
 
 #install desktop file for mumble-overlay
 #desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
@@ -206,24 +215,27 @@ fi
 %files
 %defattr(-,root,root,-)
 %doc README README.Linux LICENSE CHANGES
-%doc scripts/*.pl scripts/*%{name}-policy*
-%doc scripts/*php scripts/qt.conf
-%{_libdir}/libmumble.so*
-%{_libdir}/%{name}/libmumble.so*
+%doc scripts/weblist*
 %{_bindir}/%{name}
+%{_bindir}/%{name}11x
 #%attr(664,root,root) %{_datadir}/%{name}/*
 %{_mandir}/man1/%{name}*
 #%{_mandir}/man1/%{name}-overlay.1
+%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 %{_datadir}/icons/hicolor/16x16/apps/%{name}.png
 %{_datadir}/icons/hicolor/32x32/apps/%{name}.png
 %{_datadir}/icons/hicolor/48x48/apps/%{name}.png
 %{_datadir}/icons/hicolor/64x64/apps/%{name}.png
 %{_datadir}/applications/%{name}.desktop
+%{_datadir}/applications/%{name}11x.desktop
 #%{_datadir}/hal/fdi/policy/20thirdparty/11-input-mumble-policy.fdi
+%{_datadir}/%{name}/translations/%{name}_*.qm
+%{_datadir}/%{name}11x/translations/%{name}_*.qm
 
 %files -n murmur
 %defattr(-,root,root,-)
 %doc README README.Linux LICENSE CHANGES
+%doc scripts/murmur.pl scripts/murmur-user-wrapper
 #%attr(-,mumble-server,mumble-server) %{_sbindir}/murmur
 %attr(-,mumble-server,mumble-server) %{_sbindir}/murmurd
 %attr(-,mumble-server,mumble-server) %{_initrddir}/murmur
@@ -231,31 +243,46 @@ fi
 %config(noreplace) %attr(664,mumble-server,mumble-server) %{_sysconfdir}/murmur/murmur.ini
 %config(noreplace) %attr(664,mumble-server,mumble-server) %{_sysconfdir}/mumble-server.ini
 %{_mandir}/man1/murmurd.1*
-%attr(664,root,root) %{_sysconfdir}/logrotate.d/murmur
-%{_sysconfdir}/dbus-1/system.d/murmur.conf
+%attr(664,root,root) %config(noreplace) %{_sysconfdir}/logrotate.d/murmur
+%config(noreplace) %{_sysconfdir}/dbus-1/system.d/murmur.conf
 %dir %attr(-,mumble-server,mumble-server) %{_localstatedir}/lib/mumble-server/
 %dir %attr(-,mumble-server,mumble-server) %{_localstatedir}/log/mumble-server/
 %dir %attr(-,mumble-server,mumble-server) %{_localstatedir}/run/mumble-server/
 
 %files plugins
 %defattr(-,root,root,-)
-%{_libdir}/%{name}
+%{_libdir}/%{name}/libmanual.so
+%{_libdir}/%{name}/liblink.so
 
 %files overlay
 %defattr(-,root,root,-)
 %{_bindir}/%{name}-overlay
-#%{_datadir}/applications/%{name}-overlay.desktop
+%{_libdir}/%{name}/lib%{name}*
 
 %files protocol
 %defattr(-,root,root,-)
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
-* Tue Mar 23 2010 Mary Ellen Foster <mefoster@gmail.com> - 1.1.8-16
-- Rebuild with new ice-3.4.0
-- Fix UTF-8 characters in changelog
-- Add --add-needed to link line so that it finds librt
-- Remove unneeded dbus-qt-devel BuildRequirement to fix FTBFS #564996
+* Sun Apr 18 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-6
+- Fix for missing dbus-qt-devel on >F12
+
+* Sun Apr 18 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-5
+- Merged Mary Ellen Foster's changelog entry
+
+* Tue Mar 30 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-4
+- Marked the files in /etc as config entries
+
+* Tue Mar 23 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-3
+- Added desktop file for mumble11x
+
+* Mon Feb 22 2010 Julian Golderer <j.golderer@novij.at> - 1.2.2-2
+- Added mumble11x
+- Added svg icons
+- Added language files
+
+* Sun Feb 21 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-1
+- Update to 1.2.2
 
 * Fri Aug 21 2009 Tomas Mraz <tmraz@redhat.com> - 1.1.8-15
 - rebuilt with new openssl
@@ -338,4 +365,3 @@ fi
 
 * Wed Apr 23 2009 Igor Jurišković <juriskovic.igor@gmail.com> 1.1.8-1
 - Initial revision.
-

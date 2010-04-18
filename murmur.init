@@ -16,7 +16,7 @@
 . /lib/lsb/init-functions
 
 prog=murmur
-lockfile=/var/log/subsys/murmur
+lockfile=/var/lock/subsys/murmur
 RETVAL=0
 INIFILE=/etc/mumble-server.ini
 MURMUR_USER=murmur
@@ -58,14 +58,8 @@ case "$1" in
         stop
         ;;
     status)
-#	if [ -f $lockfile]; then
-#		echo $"Murmur appears to be running."
-#		RETVAL=0
-#	else
-#		echo $"Murmur appears to be stopped."
-#		RETVAL=3
-#	fi
 	status $prog
+	RETVAL=$?	
         ;;
     restart|force-reload)
 	restart
