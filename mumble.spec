@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.2
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -129,7 +129,7 @@ ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so.1.2
 
 mkdir -p %{buildroot}%{_sysconfdir}/murmur/
 install -pD scripts/murmur.ini.system %{buildroot}%{_sysconfdir}/murmur/murmur.ini
-ln -s ../etc/murmur/murmur.ini %{buildroot}%{_sysconfdir}/%{name}-server.ini
+ln -s /etc/murmur/murmur.ini %{buildroot}%{_sysconfdir}/%{name}-server.ini
 install -pD -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/murmur
 
 mkdir -p %{buildroot}%{_datadir}/%{name}/
@@ -264,6 +264,9 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Sun May  2 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-7
+- Fixed murmur's init script
+
 * Sun Apr 18 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-6
 - Fix for missing dbus-qt-devel on >F12
 
