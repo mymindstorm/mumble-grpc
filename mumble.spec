@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.2
-Release:	7%{?dist}
+Release:	8%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -43,6 +43,8 @@ Requires(pre): shadow-utils
 Requires(post): chkconfig
 Requires(preun): chkconfig, initscripts
 Requires(postun): initscripts
+
+Requires: redhat-lsb
 
 %description -n murmur
 Murmur(also called mumble-server) is part of the VoIP suite Mumble
@@ -264,6 +266,10 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Sun May 16 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-8
+- Rebuild for protobuf ABI change
+- Added redhat-lsb to the Requires for murmur
+
 * Sun May  2 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-7
 - Fixed murmur's init script
 
