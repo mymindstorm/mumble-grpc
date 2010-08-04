@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.2
-Release:	8%{?dist}
+Release:	9%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -266,6 +266,10 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Tue Aug 03 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-9
+- Removed redhat-lsb from Requires for murmur
+- Updated initscript for murmur
+
 * Sun May 16 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-8
 - Rebuild for protobuf ABI change
 - Added redhat-lsb to the Requires for murmur
