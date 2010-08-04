@@ -240,7 +240,7 @@ fi
 %doc scripts/murmur.pl scripts/murmur-user-wrapper
 #%attr(-,mumble-server,mumble-server) %{_sbindir}/murmur
 %attr(-,mumble-server,mumble-server) %{_sbindir}/murmurd
-%attr(-,mumble-server,mumble-server) %{_initrddir}/murmur
+%{_initrddir}/murmur
 %{_sbindir}/%{name}-server
 %config(noreplace) %attr(664,mumble-server,mumble-server) %{_sysconfdir}/murmur/murmur.ini
 %config(noreplace) %attr(664,mumble-server,mumble-server) %{_sysconfdir}/mumble-server.ini
