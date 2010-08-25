@@ -44,8 +44,6 @@ Requires(post): chkconfig
 Requires(preun): chkconfig, initscripts
 Requires(postun): initscripts
 
-Requires: redhat-lsb
-
 %description -n murmur
 Murmur(also called mumble-server) is part of the VoIP suite Mumble
 primarily aimed at gamers. Murmur is the server component of the suite.
