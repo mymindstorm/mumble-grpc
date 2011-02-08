@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.2
-Release:	10%{?dist}
+Release:	11%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -264,6 +264,9 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.2-11
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Wed Aug 25 2010 Andreas Osowski <th0br0@mkdir.name> - 1.2.2-10
 - Actually removed the requirement for redhat-lsb
 
