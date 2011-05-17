@@ -1,6 +1,6 @@
 Name:		mumble
-Version:	1.2.2
-Release:	11%{?dist}
+Version:	1.2.3
+Release:	2%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -11,6 +11,8 @@ Source1:	murmur.init
 Source2:	%{name}.desktop
 Source3:	%{name}11x.desktop
 Source4:	%{name}-overlay.desktop
+Source5:	murmur-tmpfiles.conf
+Patch0:		%{name}-%{version}-slice2cpp.patch
 #fixes compile error on f10 and above
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -23,6 +25,7 @@ BuildRequires:	desktop-file-utils, openssl-devel
 BuildRequires:	libXevie-devel, celt-devel
 BuildRequires:	protobuf-compiler, avahi-compat-libdns_sd-devel
 BuildRequires:	libsndfile-devel, protobuf-devel
+Requires:	celt071
 
 # Due to missing ice on ppc64
 ExcludeArch: ppc64
@@ -41,8 +44,8 @@ Provides:	%{name}-server = %{version}-%{release}
 
 Requires(pre): shadow-utils
 Requires(post): chkconfig
-Requires(preun): chkconfig, initscripts
-Requires(postun): initscripts
+Requires(preun): chkconfig
+Requires: initscripts
 
 %description -n murmur
 Murmur(also called mumble-server) is part of the VoIP suite Mumble
@@ -88,15 +91,16 @@ exit 0
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 %{_qt4_qmake} "CONFIG+=no-bundled-speex no-g15 \
 no-embed-qt-translations no-update \
-no-bundled-celt \
-QMAKE_CFLAGS_RELEASE=%{optflags} \
-QMAKE_CXXFLAGS_RELEASE=%{optflags} \
-DEFINES+=PLUGIN_PATH=%{_libdir}/%{name} \
-DEFINES+=DEFAULT_SOUNDSYSTEM=PulseAudio" main.pro
+no-bundled-celt" \
+QMAKE_CFLAGS_RELEASE="%{optflags}" \
+QMAKE_CXXFLAGS_RELEASE="%{optflags}" \
+DEFINES+="PLUGIN_PATH=%{_libdir}/%{name}" \
+DEFINES+="DEFAULT_SOUNDSYSTEM=PulseAudio" main.pro
 make 
 #%{?_smp_mflags}
 
@@ -126,6 +130,9 @@ install -p release/plugins/*.so %{buildroot}%{_libdir}/%{name}/
 ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so
 ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so.1
 ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so.1.2
+
+#symlink for celt071
+ln -s ../libcelt071.so.0.0.0 %{buildroot}%{_libdir}/%{name}/libcelt.so.0.7.0
 
 mkdir -p %{buildroot}%{_sysconfdir}/murmur/
 install -pD scripts/murmur.ini.system %{buildroot}%{_sysconfdir}/murmur/murmur.ini
@@ -177,7 +184,14 @@ mkdir -p %{buildroot}%{_localstatedir}/lib/mumble-server/
 mkdir -p %{buildroot}%{_localstatedir}/log/mumble-server/
 
 #pid dir
-mkdir -p %{buildroot}%{_localstatedir}/run/mumble-server/
+mkdir -p %{buildroot}%{_localstatedir}/run/
+install -d -m 0710 %{buildroot}%{_localstatedir}/run/mumble-server/
+
+%if 0%{?fedora} >= 15
+#tmpfiles.d
+mkdir -p %{buildroot}%{_sysconfdir}/tmpfiles.d
+install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/tmpfiles.d/%{name}.conf
+%endif
 
 %post
 /sbin/ldconfig
@@ -231,6 +245,7 @@ fi
 #%{_datadir}/hal/fdi/policy/20thirdparty/11-input-mumble-policy.fdi
 %{_datadir}/%{name}/translations/%{name}_*.qm
 %{_datadir}/%{name}11x/translations/%{name}_*.qm
+%{_libdir}/%{name}/libcelt.so.0.7.0
 
 %files -n murmur
 %defattr(-,root,root,-)
@@ -247,7 +262,14 @@ fi
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/murmur.conf
 %dir %attr(-,mumble-server,mumble-server) %{_localstatedir}/lib/mumble-server/
 %dir %attr(-,mumble-server,mumble-server) %{_localstatedir}/log/mumble-server/
-%dir %attr(-,mumble-server,mumble-server) %{_localstatedir}/run/mumble-server/
+%ghost %dir %{_localstatedir}/lib/mumble-server/
+%ghost %dir %{_localstatedir}/log/mumble-server/
+%if 0%{?fedora} >= 15
+%dir %{_localstatedir}/run/mumble-server/
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/%{name}.conf
+%else
+%ghost %dir %{_localstatedir}/run/mumble-server/
+%endif
 
 %files plugins
 %defattr(-,root,root,-)
@@ -264,6 +286,16 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Tue May 17 2011 Andreas Osowski <th0br0@mkdir.name> - 1.2.3-2
+- Added celt071 functionality
+- Fixed the qmake args
+
+* Wed Mar 30 2011 Andreas Osowski <th0br0@mkdir.name> - 1.2.3-1
+- Update to 1.2.3
+- Fixes vulnerability #610845
+- Added patch to make it compile with Ice 3.4.0
+- Added tmpfile.d config file for murmur
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.2-11
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
