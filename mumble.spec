@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.3
-Release:	2%{?dist}
+Release:	3%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -286,6 +286,9 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Mon Sep 12 2011 Andreas Osowski <th0br0@mkdir.name> - 1.2.3-3
+- Rebuild for newer protobuf
+
 * Tue May 17 2011 Andreas Osowski <th0br0@mkdir.name> - 1.2.3-2
 - Added celt071 functionality
 - Fixed the qmake args
