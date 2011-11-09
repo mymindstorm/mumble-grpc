@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.3
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -286,6 +286,9 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Thu Nov 10 2011 Andreas Osowski <th0br0@mkdir.name> - 1.2.3-4
+- rebuilt for protobuf update
+
 * Mon Sep 12 2011 Andreas Osowski <th0br0@mkdir.name> - 1.2.3-3
 - Rebuild for newer protobuf
 
