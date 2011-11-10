@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.3
-Release:	3%{?dist}
+Release:	5%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -13,7 +13,7 @@ Source3:	%{name}11x.desktop
 Source4:	%{name}-overlay.desktop
 Source5:	murmur-tmpfiles.conf
 Patch0:		%{name}-%{version}-slice2cpp.patch
-#fixes compile error on f10 and above
+Patch1:		%{name}-%{version}-celt_include_dir.patch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	qt-devel, boost-devel, ice-devel
@@ -22,7 +22,7 @@ BuildRequires:	pulseaudio-libs-devel, speex-devel
 BuildRequires:	speech-dispatcher-devel, libogg-devel
 BuildRequires:	libcap-devel
 BuildRequires:	desktop-file-utils, openssl-devel
-BuildRequires:	libXevie-devel, celt-devel
+BuildRequires:	libXevie-devel, celt071-devel
 BuildRequires:	protobuf-compiler, avahi-compat-libdns_sd-devel
 BuildRequires:	libsndfile-devel, protobuf-devel
 Requires:	celt071
@@ -92,6 +92,7 @@ exit 0
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 %{_qt4_qmake} "CONFIG+=no-bundled-speex no-g15 \
@@ -286,6 +287,13 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Thu Nov 10 2011 Andreas Osowski <th0br0@mkdir.name> - 1.2.3-5
+- Updated Ice version in patch0
+- Added new patch to build against celt071 includes thanks to Florent Le Coz
+
+* Thu Nov 10 2011 Andreas Osowski <th0br0@mkdir.name> - 1.2.3-4
+- rebuilt for protobuf update
+
 * Mon Sep 12 2011 Andreas Osowski <th0br0@mkdir.name> - 1.2.3-3
 - Rebuild for newer protobuf
 
