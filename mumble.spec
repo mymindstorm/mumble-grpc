@@ -13,7 +13,7 @@ Source3:	%{name}11x.desktop
 Source4:	%{name}-overlay.desktop
 Source5:	murmur-tmpfiles.conf
 Patch0:		%{name}-%{version}-slice2cpp.patch
-Patch1: 	%{name}-%{version}-celt_include_dir.patch
+Patch1:		%{name}-%{version}-celt_include_dir.patch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:	qt-devel, boost-devel, ice-devel
