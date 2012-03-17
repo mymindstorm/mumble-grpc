@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.3
-Release:	6%{?dist}
+Release:	7%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -287,6 +287,9 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Fri Mar 16 2012 Tom Callaway <spot@fedoraproject.org> - 1.2.3-7
+- rebuild against fixed ice
+
 * Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.3-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
