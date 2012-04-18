@@ -1,13 +1,13 @@
 Name:		mumble
 Version:	1.2.3
-Release:	7%{?dist}
+Release:	8%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
 License:	BSD
 URL:		http://%{name}.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
-Source1:	murmur.init
+Source1:	murmur.service
 Source2:	%{name}.desktop
 Source3:	%{name}11x.desktop
 Source4:	%{name}-overlay.desktop
@@ -43,9 +43,9 @@ Group:		System Environment/Daemons
 Provides:	%{name}-server = %{version}-%{release}
 
 Requires(pre): shadow-utils
-Requires(post): chkconfig
-Requires(preun): chkconfig
-Requires: initscripts
+Requires(post): systemd-units
+Requires(preun): systemd-units
+Requires(postun): systemd-units
 
 %description -n murmur
 Murmur(also called mumble-server) is part of the VoIP suite Mumble
@@ -138,7 +138,7 @@ ln -s ../libcelt071.so.0.0.0 %{buildroot}%{_libdir}/%{name}/libcelt.so.0.7.0
 mkdir -p %{buildroot}%{_sysconfdir}/murmur/
 install -pD scripts/murmur.ini.system %{buildroot}%{_sysconfdir}/murmur/murmur.ini
 ln -s /etc/murmur/murmur.ini %{buildroot}%{_sysconfdir}/%{name}-server.ini
-install -pD -m0755 %{SOURCE1} %{buildroot}%{_initrddir}/murmur
+install -pD -m0644 %{SOURCE1} %{buildroot}%{_unitdir}/murmur.service
 
 mkdir -p %{buildroot}%{_datadir}/%{name}/
 install -pD scripts/%{name}-overlay %{buildroot}%{_bindir}/%{name}-overlay
@@ -205,9 +205,24 @@ if [ $1 -eq 0 ] ; then
     gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 fi
 
+%post -n murmur
+if [ $1 -eq 1 ] ; then 
+    # Initial installation 
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
+
+%preun -n murmur
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    /bin/systemctl --no-reload disable murmur.service > /dev/null 2>&1 || :
+    /bin/systemctl stop murmur.service > /dev/null 2>&1 || :
+fi
+
 %postun -n murmur
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
-    /sbin/service murmur condrestart >/dev/null 2>&1 || :
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart murmur.service >/dev/null 2>&1 || :
 fi
 
 %posttrans 
@@ -216,15 +231,6 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 
 %clean
 rm -rf %{buildroot}
-
-%preun -n murmur
-if [ $1 = 0 ] ; then
-	/sbin/service murmur stop > /dev/null 2>&1 || :
-	/sbin/chkconfig --del murmur || :
-fi
-
-%post -n murmur
-/sbin/chkconfig --add murmur || :
 
 
 %files
@@ -254,7 +260,7 @@ fi
 %doc scripts/murmur.pl scripts/murmur-user-wrapper
 #%attr(-,mumble-server,mumble-server) %{_sbindir}/murmur
 %attr(-,mumble-server,mumble-server) %{_sbindir}/murmurd
-%{_initrddir}/murmur
+%{_unitdir}/murmur.service
 %{_sbindir}/%{name}-server
 %config(noreplace) %attr(664,mumble-server,mumble-server) %{_sysconfdir}/murmur/murmur.ini
 %config(noreplace) %attr(664,mumble-server,mumble-server) %{_sysconfdir}/mumble-server.ini
@@ -287,6 +293,9 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Wed Apr 18 2012 Jon Ciesla <limburgher@gmail.com> - 1.2.3-8
+- Migrate to systemd, BZ 790040.
+
 * Fri Mar 16 2012 Tom Callaway <spot@fedoraproject.org> - 1.2.3-7
 - rebuild against fixed ice
 
