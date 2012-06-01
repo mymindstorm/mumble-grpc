@@ -1,6 +1,6 @@
 [Unit]
 Description=Murmurd - VoIP Server
-After=network.target
+After=network.target mysqld.service
 
 [Service]
 User=mumble-server

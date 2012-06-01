@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.3
-Release:	8%{?dist}
+Release:	9%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -14,7 +14,11 @@ Source4:	%{name}-overlay.desktop
 Source5:	murmur-tmpfiles.conf
 Patch0:		%{name}-%{version}-slice2cpp.patch
 Patch1:		%{name}-%{version}-celt_include_dir.patch
-BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+# CVE-2012-0863
+# https://github.com/mumble-voip/mumble/commit/5632c35d6759f5e13a7dfe78e4ee6403ff6a8e3e
+Patch2:		0001-Explicitly-remove-file-permissions-for-settings-and-.patch
+# Fix broken logrotate script (start-stop-daemon not available anymore), BZ 730129
+Patch3:		mumble-1.2.3-logrotate.patch
 
 BuildRequires:	qt-devel, boost-devel, ice-devel
 BuildRequires:	alsa-lib-devel, alsa-oss-devel
@@ -25,7 +29,10 @@ BuildRequires:	desktop-file-utils, openssl-devel
 BuildRequires:	libXevie-devel, celt071-devel
 BuildRequires:	protobuf-compiler, avahi-compat-libdns_sd-devel
 BuildRequires:	libsndfile-devel, protobuf-devel
+BuildRequires:	systemd-units
 Requires:	celt071
+# Needed for tmpfiles.d service
+Requires:	initscripts
 
 # Due to missing ice on ppc64
 ExcludeArch: ppc64
@@ -46,6 +53,9 @@ Requires(pre): shadow-utils
 Requires(post): systemd-units
 Requires(preun): systemd-units
 Requires(postun): systemd-units
+# For migration to systemd
+Requires(post): systemd-sysv
+Requires: qt4-sqlite
 
 %description -n murmur
 Murmur(also called mumble-server) is part of the VoIP suite Mumble
@@ -93,6 +103,8 @@ exit 0
 %setup -q
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1 -F 2
+%patch3 -p1
 
 %build
 %{_qt4_qmake} "CONFIG+=no-bundled-speex no-g15 \
@@ -106,8 +118,6 @@ make
 #%{?_smp_mflags}
 
 %install
-rm -rf %{buildroot}
-
 install -pD -m0755 release/%{name} %{buildroot}%{_bindir}/%{name}
 install -pD -m0755 release/%{name}11x %{buildroot}%{_bindir}/%{name}11x
 install -pD -m0755 release/murmurd %{buildroot}%{_sbindir}/murmurd
@@ -147,7 +157,7 @@ install -pD scripts/%{name}-overlay %{buildroot}%{_bindir}/%{name}-overlay
 mkdir -p %{buildroot}%{_mandir}/man1/
 install -pD -m0644 man/murmurd.1 %{buildroot}%{_mandir}/man1/
 install -pD -m0644 man/mumble* %{buildroot}%{_mandir}/man1/
-#install -pD -m0664 man/mumble-overlay.1 %{buildroot}%{_mandir}/man1/mumble-overlay.1
+install -pD -m0664 man/mumble-overlay.1 %{buildroot}%{_mandir}/man1/mumble-overlay.1
 
 #icons
 mkdir -p %{buildroot}%{_datadir}/icons/%{name}
@@ -188,22 +198,21 @@ mkdir -p %{buildroot}%{_localstatedir}/log/mumble-server/
 mkdir -p %{buildroot}%{_localstatedir}/run/
 install -d -m 0710 %{buildroot}%{_localstatedir}/run/mumble-server/
 
-%if 0%{?fedora} >= 15
 #tmpfiles.d
 mkdir -p %{buildroot}%{_sysconfdir}/tmpfiles.d
 install -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/tmpfiles.d/%{name}.conf
-%endif
 
 %post
-/sbin/ldconfig
 touch --no-create %{_datadir}/icons/hicolor &>/dev/null ||:
 
 %postun 
-/sbin/ldconfig
 if [ $1 -eq 0 ] ; then
     touch --no-create %{_datadir}/icons/hicolor &>/dev/null
     gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 fi
+
+%posttrans
+gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 
 %post -n murmur
 if [ $1 -eq 1 ] ; then 
@@ -225,23 +234,27 @@ if [ $1 -ge 1 ] ; then
     /bin/systemctl try-restart murmur.service >/dev/null 2>&1 || :
 fi
 
-%posttrans 
-gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||: 
+# For migration to systemd
+%triggerun -n murmur -- murmur < 1.2.3-8
+# Save the current service runlevel info
+# User must manually run systemd-sysv-convert --apply murmur
+# to migrate them to systemd targets
+/usr/bin/systemd-sysv-convert --save murmur >/dev/null 2>&1 ||:
 
+# If the package is allowed to autostart:
+/bin/systemctl --no-reload enable murmur.service >/dev/null 2>&1 ||:
 
-%clean
-rm -rf %{buildroot}
+# Run these because the SysV package being removed won't do them
+/sbin/chkconfig --del murmur >/dev/null 2>&1 || :
+/bin/systemctl try-restart murmur.service >/dev/null 2>&1 || :
 
 
 %files
-%defattr(-,root,root,-)
 %doc README README.Linux LICENSE CHANGES
 %doc scripts/weblist*
 %{_bindir}/%{name}
 %{_bindir}/%{name}11x
-#%attr(664,root,root) %{_datadir}/%{name}/*
 %{_mandir}/man1/%{name}*
-#%{_mandir}/man1/%{name}-overlay.1
 %{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 %{_datadir}/icons/hicolor/16x16/apps/%{name}.png
 %{_datadir}/icons/hicolor/32x32/apps/%{name}.png
@@ -249,16 +262,14 @@ rm -rf %{buildroot}
 %{_datadir}/icons/hicolor/64x64/apps/%{name}.png
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/applications/%{name}11x.desktop
-#%{_datadir}/hal/fdi/policy/20thirdparty/11-input-mumble-policy.fdi
-%{_datadir}/%{name}/translations/%{name}_*.qm
-%{_datadir}/%{name}11x/translations/%{name}_*.qm
+%{_datadir}/mumble/
+%{_datadir}/mumble11x/
+%dir %{_libdir}/%{name}
 %{_libdir}/%{name}/libcelt.so.0.7.0
 
 %files -n murmur
-%defattr(-,root,root,-)
 %doc README README.Linux LICENSE CHANGES
 %doc scripts/murmur.pl scripts/murmur-user-wrapper
-#%attr(-,mumble-server,mumble-server) %{_sbindir}/murmur
 %attr(-,mumble-server,mumble-server) %{_sbindir}/murmurd
 %{_unitdir}/murmur.service
 %{_sbindir}/%{name}-server
@@ -269,30 +280,35 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/dbus-1/system.d/murmur.conf
 %dir %attr(-,mumble-server,mumble-server) %{_localstatedir}/lib/mumble-server/
 %dir %attr(-,mumble-server,mumble-server) %{_localstatedir}/log/mumble-server/
-%ghost %dir %{_localstatedir}/lib/mumble-server/
-%ghost %dir %{_localstatedir}/log/mumble-server/
-%if 0%{?fedora} >= 15
-%dir %{_localstatedir}/run/mumble-server/
+%dir %attr(-,mumble-server,mumble-server) %{_localstatedir}/run/mumble-server/
 %config(noreplace) %{_sysconfdir}/tmpfiles.d/%{name}.conf
-%else
-%ghost %dir %{_localstatedir}/run/mumble-server/
-%endif
 
 %files plugins
-%defattr(-,root,root,-)
 %{_libdir}/%{name}/libmanual.so
 %{_libdir}/%{name}/liblink.so
 
 %files overlay
-%defattr(-,root,root,-)
 %{_bindir}/%{name}-overlay
 %{_libdir}/%{name}/lib%{name}*
+%{_mandir}/man1/mumble-overlay.1*
 
 %files protocol
-%defattr(-,root,root,-)
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Thu May 31 2012 Christian Krause <chkr@fedoraproject.org> - 1.2.3-9
+- Fix startup issues of murmurd (BZ 711711, BZ 770469, BZ 771423)
+- Fix migration to systemd
+  http://fedoraproject.org/wiki/Packaging:ScriptletSnippets#Systemd
+- Fix directory ownership of %%{_libdir}/mumble and %%{_datadir}/mumble*
+  (BZ 744886)
+- Add upstream patch for CVE-2012-0863 (BZ 791058)
+- Fix broken logrotate config file (BZ 730129)
+- Add dependency for qt4-sqlite (BZ 660221)
+- Remove /sbin/ldconfig from %%post(un) since mumble does not
+  contain any libraries in %%{_libdir}
+- Some minor cleanup
+
 * Wed Apr 18 2012 Jon Ciesla <limburgher@gmail.com> - 1.2.3-8
 - Migrate to systemd, BZ 790040.
 
