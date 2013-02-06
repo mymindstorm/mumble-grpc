@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.3
-Release:	10%{?dist}
+Release:	11%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -215,24 +215,13 @@ fi
 gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 
 %post -n murmur
-if [ $1 -eq 1 ] ; then 
-    # Initial installation 
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-fi
+%systemd_post murmur.service
 
 %preun -n murmur
-if [ $1 -eq 0 ] ; then
-    # Package removal, not upgrade
-    /bin/systemctl --no-reload disable murmur.service > /dev/null 2>&1 || :
-    /bin/systemctl stop murmur.service > /dev/null 2>&1 || :
-fi
+%systemd_preun murmur.service
 
 %postun -n murmur
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall
-    /bin/systemctl try-restart murmur.service >/dev/null 2>&1 || :
-fi
+%systemd_postun_with_restart murmur.service
 
 # For migration to systemd
 %triggerun -n murmur -- murmur < 1.2.3-8
@@ -296,6 +285,11 @@ fi
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Wed Feb 06 2013 Christian Krause <chkr@fedoraproject.org> - 1.2.3-11
+- Rebuild against new ice package
+- Updated Ice version in patch0
+- Use new systemd-rpm macros (BZ 850218)
+
 * Fri Jul 20 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.3-10
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
