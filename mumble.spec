@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.3
-Release:	12%{?dist}
+Release:	13%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -285,6 +285,10 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Wed Apr 03 2013 Christian Krause <chkr@fedoraproject.org> - 1.2.3-13
+- Rebuild against new ice package
+- Updated Ice version in patch0
+
 * Sun Mar 17 2013 Christian Krause <chkr@fedoraproject.org> - 1.2.3-12
 - Rebuild against new protobuf package
 
