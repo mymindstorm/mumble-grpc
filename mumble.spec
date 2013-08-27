@@ -1,6 +1,6 @@
 Name:		mumble
-Version:	1.2.3
-Release:	16%{?dist}
+Version:	1.2.4
+Release:	1%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -9,17 +9,18 @@ URL:		http://%{name}.sourceforge.net/
 Source0:	http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
 Source1:	murmur.service
 Source2:	%{name}.desktop
-Source3:	%{name}11x.desktop
-Source4:	%{name}-overlay.desktop
 Source5:	murmur-tmpfiles.conf
-Patch0:		%{name}-%{version}-slice2cpp.patch
-Patch1:		%{name}-%{version}-celt_include_dir.patch
+Patch0:		%{name}-1.2.4-slice2cpp.patch
+Patch1:		%{name}-1.2.4-celt_include_dir.patch
 # CVE-2012-0863
 # https://github.com/mumble-voip/mumble/commit/5632c35d6759f5e13a7dfe78e4ee6403ff6a8e3e
 Patch2:		0001-Explicitly-remove-file-permissions-for-settings-and-.patch
 # Fix broken logrotate script (start-stop-daemon not available anymore), BZ 730129
 Patch3:		mumble-1.2.3-logrotate.patch
 Patch4:		mumble-fixspeechd.patch
+# Upstream patch to fix hang on startup
+# https://github.com/mumble-voip/mumble/commit/dee463ef52d8406d0a925facfabead616f0f9dc2
+Patch5:		0001-bonjour-use-Qt-AutoConnection-for-BonjourServiceReso.patch
 
 BuildRequires:	qt-devel, boost-devel, ice-devel
 BuildRequires:	alsa-lib-devel
@@ -30,7 +31,7 @@ BuildRequires:	desktop-file-utils, openssl-devel
 BuildRequires:	libXevie-devel, celt071-devel
 BuildRequires:	protobuf-compiler, avahi-compat-libdns_sd-devel
 BuildRequires:	libsndfile-devel, protobuf-devel
-BuildRequires:	systemd-units
+BuildRequires:	opus-devel, speech-dispatcher-devel
 Requires:	celt071
 # Needed for tmpfiles.d service
 Requires:	initscripts
@@ -51,11 +52,9 @@ Group:		System Environment/Daemons
 Provides:	%{name}-server = %{version}-%{release}
 
 Requires(pre): shadow-utils
-Requires(post): systemd-units
-Requires(preun): systemd-units
-Requires(postun): systemd-units
-# For migration to systemd
-Requires(post): systemd-sysv
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
 Requires: qt4-sqlite
 
 %description -n murmur
@@ -107,37 +106,30 @@ exit 0
 %patch2 -p1 -F 2
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 %build
 %{_qt4_qmake} "CONFIG+=no-bundled-speex no-g15 \
 no-embed-qt-translations no-update \
-no-bundled-celt" \
+no-bundled-celt no-bundled-opus packaged" \
 QMAKE_CFLAGS_RELEASE="%{optflags}" \
 QMAKE_CXXFLAGS_RELEASE="%{optflags}" \
 DEFINES+="PLUGIN_PATH=%{_libdir}/%{name}" \
 DEFINES+="DEFAULT_SOUNDSYSTEM=PulseAudio" main.pro
-make 
+make release
 #%{?_smp_mflags}
 
 %install
 install -pD -m0755 release/%{name} %{buildroot}%{_bindir}/%{name}
-install -pD -m0755 release/%{name}11x %{buildroot}%{_bindir}/%{name}11x
 install -pD -m0755 release/murmurd %{buildroot}%{_sbindir}/murmurd
 ln -s murmurd %{buildroot}%{_sbindir}/%{name}-server
-#ln -s ../sbin/murmurd %{buildroot}%{_sbindir}/murmur 
 
 #translations
 mkdir -p %{buildroot}/%{_datadir}/%{name}/translations
-mkdir -p %{buildroot}/%{_datadir}/%{name}11x/translations
 install -pm 644 src/%{name}/*.qm %{buildroot}/%{_datadir}/%{name}/translations
-install -pm 644 src/%{name}11x/*.qm %{buildroot}/%{_datadir}/%{name}11x/translations
 
 
 mkdir -p %{buildroot}%{_libdir}/%{name}/
-#install -d %{buildroot}%{_libdir}/%{name}/
-#install -p release/libmumble.so* %{buildroot}%{_libdir}/
-# obviusly install doesn't preserve symlinks
-# mumble will complain loudly if it cant find libmumble.so inside /usr/lib/
 install -p release/libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/
 install -p release/plugins/*.so %{buildroot}%{_libdir}/%{name}/
 ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so
@@ -164,10 +156,6 @@ install -pD -m0664 man/mumble-overlay.1 %{buildroot}%{_mandir}/man1/mumble-overl
 #icons
 mkdir -p %{buildroot}%{_datadir}/icons/%{name}
 install -pD -m0644 icons/%{name}.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
-install -pD -m0644 src/mumble11x/resources/%{name}.16x16.png %{buildroot}%{_datadir}/icons/hicolor/16x16/apps/%{name}.png
-install -pD -m0644 src/mumble11x/resources/%{name}.32x32.png %{buildroot}%{_datadir}/icons/hicolor/32x32/apps/%{name}.png
-install -pD -m0644 src/mumble11x/resources/%{name}.48x48.png %{buildroot}%{_datadir}/icons/hicolor/48x48/apps/%{name}.png
-install -pD -m0644 src/mumble11x/resources/%{name}.64x64.png %{buildroot}%{_datadir}/icons/hicolor/64x64/apps/%{name}.png
 
 #logrotate
 install -pD scripts/murmur.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/murmur
@@ -175,14 +163,6 @@ install -pD scripts/murmur.logrotate %{buildroot}%{_sysconfdir}/logrotate.d/murm
 # install desktop file
 desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
 %{SOURCE2}
-
-#install desktop file for mumble11x
-desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
-%{SOURCE3}
-
-#install desktop file for mumble-overlay
-#desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
-#%{SOURCE3}
 
 # install the mumble protocol
 install -pD -m0644 scripts/%{name}.protocol %{buildroot}%{_datadir}/kde4/services/%{name}.protocol
@@ -225,36 +205,14 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %postun -n murmur
 %systemd_postun_with_restart murmur.service
 
-# For migration to systemd
-%triggerun -n murmur -- murmur < 1.2.3-8
-# Save the current service runlevel info
-# User must manually run systemd-sysv-convert --apply murmur
-# to migrate them to systemd targets
-/usr/bin/systemd-sysv-convert --save murmur >/dev/null 2>&1 ||:
-
-# If the package is allowed to autostart:
-/bin/systemctl --no-reload enable murmur.service >/dev/null 2>&1 ||:
-
-# Run these because the SysV package being removed won't do them
-/sbin/chkconfig --del murmur >/dev/null 2>&1 || :
-/bin/systemctl try-restart murmur.service >/dev/null 2>&1 || :
-
-
 %files
 %doc README README.Linux LICENSE CHANGES
 %doc scripts/weblist*
 %{_bindir}/%{name}
-%{_bindir}/%{name}11x
-%{_mandir}/man1/%{name}*
+%{_mandir}/man1/%{name}.1*
 %{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
-%{_datadir}/icons/hicolor/16x16/apps/%{name}.png
-%{_datadir}/icons/hicolor/32x32/apps/%{name}.png
-%{_datadir}/icons/hicolor/48x48/apps/%{name}.png
-%{_datadir}/icons/hicolor/64x64/apps/%{name}.png
 %{_datadir}/applications/%{name}.desktop
-%{_datadir}/applications/%{name}11x.desktop
 %{_datadir}/mumble/
-%{_datadir}/mumble11x/
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/libcelt.so.0.7.0
 
@@ -287,6 +245,11 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Tue Aug 27 2013 Christian Krause <chkr@fedoraproject.org> - 1.2.4-1
+- Update 1.2.4 (BZ 976001)
+- New systemd-rpm macros (BZ 850218)
+- Cleanup
+
 * Mon Aug 19 2013 Peter Robinson <pbrobinson@fedoraproject.org> 1.2.3-16
 - Fix FTBFS due to speechd
 - Drop alsa-oss support
