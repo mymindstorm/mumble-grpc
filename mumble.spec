@@ -31,7 +31,7 @@ BuildRequires:	desktop-file-utils, openssl-devel
 BuildRequires:	libXevie-devel, celt071-devel
 BuildRequires:	protobuf-compiler, avahi-compat-libdns_sd-devel
 BuildRequires:	libsndfile-devel, protobuf-devel
-BuildRequires:	opus-devel, speech-dispatcher-devel
+BuildRequires:	opus-devel
 Requires:	celt071
 # Needed for tmpfiles.d service
 Requires:	initscripts
@@ -105,7 +105,7 @@ exit 0
 %patch1 -p1
 %patch2 -p1 -F 2
 %patch3 -p1
-%patch4 -p1
+%patch4 -p1 -F 2
 %patch5 -p1
 
 %build
