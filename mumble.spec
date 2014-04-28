@@ -1,5 +1,5 @@
 Name:		mumble
-Version:	1.2.4
+Version:	1.2.5
 Release:	1%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
@@ -10,17 +10,17 @@ Source0:	http://downloads.sourceforge.net/%{name}/%{name}-%{version}.tar.gz
 Source1:	murmur.service
 Source2:	%{name}.desktop
 Source5:	murmur-tmpfiles.conf
-Patch0:		%{name}-1.2.4-slice2cpp.patch
+Patch0:		%{name}-1.2.5-slice2cpp.patch
 Patch1:		%{name}-1.2.4-celt_include_dir.patch
-# CVE-2012-0863
-# https://github.com/mumble-voip/mumble/commit/5632c35d6759f5e13a7dfe78e4ee6403ff6a8e3e
-Patch2:		0001-Explicitly-remove-file-permissions-for-settings-and-.patch
 # Fix broken logrotate script (start-stop-daemon not available anymore), BZ 730129
 Patch3:		mumble-1.2.3-logrotate.patch
 Patch4:		mumble-fixspeechd.patch
 # Upstream patch to fix hang on startup
 # https://github.com/mumble-voip/mumble/commit/dee463ef52d8406d0a925facfabead616f0f9dc2
 Patch5:		0001-bonjour-use-Qt-AutoConnection-for-BonjourServiceReso.patch
+# Fix compile error with g++ 4.9.0
+# https://github.com/mumble-voip/mumble/pull/1243
+Patch6:		%{name}-1.2.5-compile-fix.patch
 
 BuildRequires:	qt-devel, boost-devel, ice-devel
 BuildRequires:	alsa-lib-devel
@@ -103,10 +103,10 @@ exit 0
 %setup -q
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1 -F 2
 %patch3 -p1
 %patch4 -p1 -F 2
 %patch5 -p1
+%patch6 -p1
 
 %build
 %{_qt4_qmake} "CONFIG+=no-bundled-speex no-g15 \
@@ -245,6 +245,12 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Fri Apr 25 2014 Christian Krause <chkr@fedoraproject.org> - 1.2.5-1
+- Update 1.2.5 (BZ 1062209)
+- Update fixes CVE-2014-0044 (BZ 1061857) and CVE-2014-0045 (BZ 1061858)
+- Add patch to fix an compile error with g++ 4.9.0
+- Remove upstreamed patch for CVE-2012-0863
+
 * Tue Aug 27 2013 Christian Krause <chkr@fedoraproject.org> - 1.2.4-1
 - Update 1.2.4 (BZ 976001)
 - New systemd-rpm macros (BZ 850218)
