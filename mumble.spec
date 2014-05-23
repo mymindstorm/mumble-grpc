@@ -1,6 +1,6 @@
 Name:		mumble
 Version:	1.2.6
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Voice chat suite aimed at gamers
 
 Group:		Applications/Internet
@@ -245,6 +245,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_datadir}/kde4/services/mumble.protocol
 
 %changelog
+* Fri May 23 2014 Petr Machata <pmachata@redhat.com> - 1.2.6-2
+- Rebuild for boost 1.55.0
+
 * Sat May 17 2014 Christian Krause <chkr@fedoraproject.org> - 1.2.6-1
 - Update 1.2.6
 - Update fixes CVE-2014-3755 (BZ 1098231) and CVE-2014-3756 (BZ 1098233)
