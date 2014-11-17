@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=Mumble overlay
-GenericName=Mumble overlay
-Comment=Overlay daemon for Mumble
-Exec=mumble-overlay
-Icon=mumble
-Terminal=false
-Type=Application
-Categories=Network;Chat;
