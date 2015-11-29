@@ -1,0 +1,18 @@
+[Unit]
+Description=Mumble Daemon - VoIP Server
+Documentation=man:murmurd(1) http://www.mumble.info
+After=network.target mysqld.service
+
+[Service]
+User=mumble-server
+Group=mumble-server
+Type=simple
+ExecStart=/usr/sbin/murmurd -fg -ini /etc/murmur/murmur.ini
+Restart=always
+PrivateDevices=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

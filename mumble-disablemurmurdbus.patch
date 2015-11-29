@@ -1,0 +1,11 @@
+--- mumble-1.2.10.orig/scripts/murmur.ini	2015-11-25 13:59:10.008232257 -0600
++++ mumble-1.2.10/scripts/murmur.ini	2015-11-25 15:39:05.188134106 -0600
+@@ -31,7 +31,7 @@
+ # Murmur defaults to not using D-Bus. If you wish to use dbus, which is one of the
+ # RPC methods available in Murmur, please specify so here.
+ #
+-dbus=session
++#dbus=session
+ 
+ # Alternate D-Bus service name. Only use if you are running distinct
+ # murmurd processes connected to the same D-Bus daemon.
