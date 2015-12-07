@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.11
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -104,7 +104,6 @@ ln -s murmurd %{buildroot}%{_sbindir}/%{name}-server
 mkdir -p %{buildroot}/%{_datadir}/%{name}/translations
 install -pm 644 src/%{name}/*.qm %{buildroot}/%{_datadir}/%{name}/translations
 
-
 mkdir -p %{buildroot}%{_libdir}/%{name}/
 install -p release/libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/
 install -p release/plugins/*.so %{buildroot}%{_libdir}/%{name}/
@@ -136,9 +135,6 @@ install -pD -m0644 icons/%{name}.svg %{buildroot}%{_datadir}/icons/hicolor/scala
 # install desktop file
 desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
 %{SOURCE2}
-
-# murmur.conf
-install -pD -m0644 scripts/murmur.conf %{buildroot}%{_sysconfdir}/dbus-1/system.d/murmur.conf
 
 #dir for mumble-server.sqlite
 mkdir -p %{buildroot}%{_localstatedir}/lib/mumble-server/
@@ -179,14 +175,12 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %files -n murmur
 %license LICENSE
 %doc README README.Linux CHANGES
-%doc scripts/murmur.pl scripts/murmur-user-wrapper
 %attr(-,mumble-server,mumble-server) %{_sbindir}/murmurd
 %{_unitdir}/murmur.service
 %{_sbindir}/%{name}-server
 %config(noreplace) %attr(664,mumble-server,mumble-server) %{_sysconfdir}/murmur/murmur.ini
 %config(noreplace) %{_sysconfdir}/%{name}-server.ini
 %{_mandir}/man1/murmurd.1*
-%config(noreplace) %{_sysconfdir}/dbus-1/system.d/murmur.conf
 %dir %attr(-,mumble-server,mumble-server) %{_localstatedir}/lib/mumble-server/
 
 %files plugins
@@ -199,6 +193,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Mon Dec 7 2015 John Popplewell <johnhatestrash@gmail.com> - 1.2.11-2
+- Removed perl dependency and all deprecated d-bus rpc support
+
 * Sun Dec 6 2015 John Popplewell <johnhatestrash@gmail.com> - 1.2.11-1
 - Update to 1.2.11
 - Added mumble-FixNoBindAtBoot.patch mumble-murmur_exit_on_no_bind.patch
