@@ -1,6 +1,6 @@
 Name:           mumble
-Version:        1.2.10
-Release:        4%{?dist}
+Version:        1.2.11
+Release:        1%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -14,6 +14,10 @@ Patch2:         %{name}-fixspeechd.patch
 Patch3:         %{name}-FedoraCryptoPolicyCipherList.patch
 # Disable d-bus rpc, this file is fixed upstream, remove on 1.3.0 release
 Patch4:         %{name}-disablemurmurdbus.patch
+# Murmur.ini modified upstream bug #1629 #1904
+Patch5:         %{name}-FixNoBindAtBoot.patch
+# Murmur will qFatal() if it does not have address to bind on start
+Patch6:         %{name}-murmur_exit_on_no_bind.patch
 
 BuildRequires:  qt4-devel, boost-devel
 #BuildRequires:  ice-devel
@@ -79,6 +83,8 @@ exit 0
 %patch2 -p1 -F 2
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
+%patch6 -p1
 
 %build
 %{qmake_qt4} "CONFIG+=no-bundled-speex no-g15 \
@@ -193,6 +199,10 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Sun Dec 6 2015 John Popplewell <johnhatestrash@gmail.com> - 1.2.11-1
+- Update to 1.2.11
+- Added mumble-FixNoBindAtBoot.patch mumble-murmur_exit_on_no_bind.patch
+
 * Wed Nov 25 2015 John Popplewell <johnhatestrash@gmail.com> - 1.2.10-4
 - Hardened murmur.service
 - Added patch to disable murmur.ini d-bus rpc - remove on 1.3.0

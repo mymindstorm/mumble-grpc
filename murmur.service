@@ -8,6 +8,7 @@ User=mumble-server
 Group=mumble-server
 Type=simple
 ExecStart=/usr/sbin/murmurd -fg -ini /etc/murmur/murmur.ini
+RestartSec=2100msec
 Restart=always
 PrivateDevices=true
 PrivateTmp=true

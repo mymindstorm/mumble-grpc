@@ -1,0 +1,11 @@
+--- mumble-1.2.11.orig/scripts/murmur.ini	2015-12-06 17:42:15.425102670 -0600
++++ mumble-1.2.11/scripts/murmur.ini	2015-12-06 17:44:56.468030347 -0600
+@@ -92,7 +92,7 @@
+ 
+ # Specific IP or hostname to bind to.
+ # If this is left blank (default), Murmur will bind to all available addresses.
+-#host=
++host=::
+ 
+ # Password to join server.
+ serverpassword=
