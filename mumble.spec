@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.11
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -193,6 +193,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.11-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Mon Dec 7 2015 John Popplewell <johnhatestrash@gmail.com> - 1.2.11-2
 - Removed perl dependency and all deprecated d-bus rpc support
 
