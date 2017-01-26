@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.18
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -193,6 +193,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Thu Jan 26 2017 Orion Poplawski <orion@cora.nwra.com> - 1.2.18-2
+- Rebuild for protobuf 3.2.0
+
 * Thu Dec 15 2016 Filipe Rosset <rosset.filipe@gmail.com> - 1.2.18-1
 - Rebuilt for new upstream release 1.2.18, fixes rhbz #1293181
 
