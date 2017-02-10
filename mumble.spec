@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.18
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -193,6 +193,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Fri Feb 10 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.18-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Thu Jan 26 2017 Orion Poplawski <orion@cora.nwra.com> - 1.2.18-2
 - Rebuild for protobuf 3.2.0
 
