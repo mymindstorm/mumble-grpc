@@ -1,0 +1,11 @@
+--- mumble-1.2.19/src/mumble/PulseAudio.cpp-orig	2017-01-27 04:48:33.000000000 -0200
++++ mumble-1.2.19/src/mumble/PulseAudio.cpp	2017-06-18 20:22:03.329310536 -0300
+@@ -116,7 +116,7 @@
+ 	pa_proplist_sets(proplist, PA_PROP_APPLICATION_NAME, "Mumble");
+ 	pa_proplist_sets(proplist, PA_PROP_APPLICATION_ID, "net.sourceforge.mumble.mumble");
+ 	pa_proplist_sets(proplist, PA_PROP_APPLICATION_ICON_NAME, "mumble");
+-	pa_proplist_sets(proplist, PA_PROP_MEDIA_ROLE, "phone");
++	pa_proplist_sets(proplist, PA_PROP_MEDIA_ROLE, "game");
+ 
+ 	pacContext = pa_context_new_with_proplist(api, NULL, proplist);
+ 	pa_proplist_free(proplist);

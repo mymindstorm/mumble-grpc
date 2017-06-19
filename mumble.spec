@@ -1,6 +1,6 @@
 Name:           mumble
-Version:        1.2.18
-Release:        4%{?dist}
+Version:        1.2.19
+Release:        1%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -18,6 +18,8 @@ Patch4:         %{name}-disablemurmurdbus.patch
 Patch5:         %{name}-FixNoBindAtBoot.patch
 # Murmur will qFatal() if it does not have address to bind on start
 Patch6:         %{name}-murmur_exit_on_no_bind.patch
+# Patch7        https://bugzilla.redhat.com/show_bug.cgi?id=1454438
+Patch7:         %{name}-fix-mute-all-audio-players.patch
 
 BuildRequires:  qt4-devel, boost-devel
 #BuildRequires:  ice-devel
@@ -85,6 +87,7 @@ exit 0
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 %build
 %{qmake_qt4} "CONFIG+=no-bundled-speex no-g15 \
@@ -193,6 +196,11 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Sun Jun 18 2017 Filipe Rosset <rosset.filipe@gmail.com> - 1.2.19-1
+- Rebuilt for new upstream release 1.2.19, fixes rhbz#1417330
+- Added a patch to fix rhbz#1454438 until upstream fixes it
+- Fixes rhbz#1462279 regarding desktop file
+
 * Tue Jun 13 2017 Orion Poplawski <orion@cora.nwra.com> - 1.2.18-4
 - Rebuild for protobuf 3.3.1
 
