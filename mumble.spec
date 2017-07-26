@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.19
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -196,6 +196,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Wed Jul 26 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.19-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
 * Sun Jun 18 2017 Filipe Rosset <rosset.filipe@gmail.com> - 1.2.19-1
 - Rebuilt for new upstream release 1.2.19, fixes rhbz#1417330
 - Added a patch to fix rhbz#1454438 until upstream fixes it
