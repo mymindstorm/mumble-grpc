@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.19
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -196,6 +196,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Wed Nov 29 2017 Igor Gnatenko <ignatenko@redhat.com> - 1.2.19-5
+- Rebuild for protobuf 3.5
+
 * Mon Nov 13 2017 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 1.2.19-4
 - Rebuild for protobuf 3.4
 
