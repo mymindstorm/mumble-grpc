@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.19
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -142,18 +142,6 @@ desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
 #dir for mumble-server.sqlite
 mkdir -p %{buildroot}%{_localstatedir}/lib/mumble-server/
 
-%post
-touch --no-create %{_datadir}/icons/hicolor &>/dev/null ||:
-
-%postun 
-if [ $1 -eq 0 ] ; then
-    touch --no-create %{_datadir}/icons/hicolor &>/dev/null
-    gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
-fi
-
-%posttrans
-gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
-
 %post -n murmur
 %systemd_post murmur.service
 
@@ -196,6 +184,9 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null ||:
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Thu Jan 18 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 1.2.19-6
+- Remove obsolete scriptlets
+
 * Wed Nov 29 2017 Igor Gnatenko <ignatenko@redhat.com> - 1.2.19-5
 - Rebuild for protobuf 3.5
 
