@@ -1,13 +1,13 @@
 Name:           mumble
 Version:        1.2.19
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
 URL:            http://www.mumble.info
 Source0:        https://github.com/mumble-voip/mumble/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz 
 Source1:        murmur.service
-Source2:        %{name}.desktop
+Source2:        mumble.appdata.xml
 Patch1:         %{name}-1.2.4-celt_include_dir.patch
 Patch2:         %{name}-fixspeechd.patch
 # See https://fedoraproject.org/wiki/Packaging:CryptoPolicies
@@ -20,6 +20,11 @@ Patch5:         %{name}-FixNoBindAtBoot.patch
 Patch6:         %{name}-murmur_exit_on_no_bind.patch
 # Patch7        https://bugzilla.redhat.com/show_bug.cgi?id=1454438
 Patch7:         %{name}-fix-mute-all-audio-players.patch
+# omit potentially harmful compiler flags for release builds
+Patch8:          mumble-1.2.19-cflags.patch
+
+## upstream patches (1.2.x branch)
+Patch103: 0003-AudioOutput-do-not-use-non-existant-template-version.patch
 
 BuildRequires:  qt4-devel, boost-devel
 #BuildRequires:  ice-devel
@@ -32,6 +37,7 @@ BuildRequires:  libXevie-devel, celt071-devel
 BuildRequires:  protobuf-compiler, avahi-compat-libdns_sd-devel
 BuildRequires:  libsndfile-devel, protobuf-devel
 BuildRequires:  opus-devel
+BuildRequires:  libappstream-glib
 #Due to naming issues, celt071 is required explicitly
 Requires:       celt071
 
@@ -46,10 +52,9 @@ won't be audible to other players.
 Summary:    Mumble voice chat server
 Provides:    %{name}-server = %{version}-%{release}
 Requires(pre): shadow-utils
-Requires(post): systemd
-Requires(preun): systemd
-Requires(postun): systemd
-Requires: qt4-sqlite
+Requires: qt4-sqlite%{?_isa}
+
+%{?systemd_requires}
 
 %description -n murmur
 Murmur(also called mumble-server) is part of the VoIP suite Mumble
@@ -81,6 +86,9 @@ exit 0
 
 %prep
 %setup -q
+
+%patch103 -p1 -b .0003
+
 %patch1 -p1
 %patch2 -p1 -F 2
 %patch3 -p1
@@ -88,15 +96,19 @@ exit 0
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1 -b .cflags
 
 %build
-%{qmake_qt4} "CONFIG+=no-bundled-speex no-g15 \
+%{qmake_qt4} \
+"CONFIG+=no-bundled-speex no-g15 \
 no-embed-qt-translations no-update \
 no-bundled-celt no-bundled-opus packaged \
 no-ice" \
 DEFINES+="PLUGIN_PATH=%{_libdir}/%{name}" \
-DEFINES+="DEFAULT_SOUNDSYSTEM=PulseAudio" main.pro
-make release %{?_smp_mflags}
+DEFINES+="DEFAULT_SOUNDSYSTEM=PulseAudio"\
+main.pro
+
+%make_build release
 
 %install
 install -pD -m0755 release/%{name} %{buildroot}%{_bindir}/%{name}
@@ -136,11 +148,19 @@ mkdir -p %{buildroot}%{_datadir}/icons/%{name}
 install -pD -m0644 icons/%{name}.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
 
 # install desktop file
-desktop-file-install --dir=%{buildroot}%{_datadir}/applications \
-%{SOURCE2}
+install -pD -m0644 scripts/mumble.desktop %{buildroot}%{_datadir}/applications/mumble.desktop
+
+# install appdata
+install -pD -m0644 %{SOURCE2} %{buildroot}%{_datadir}/metainfo/mumble.appdata.xml
 
 #dir for mumble-server.sqlite
 mkdir -p %{buildroot}%{_localstatedir}/lib/mumble-server/
+
+
+%check
+appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/mumble.appdata.xml
+desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
+
 
 %post -n murmur
 %systemd_post murmur.service
@@ -158,7 +178,8 @@ mkdir -p %{buildroot}%{_localstatedir}/lib/mumble-server/
 %{_bindir}/%{name}
 %{_mandir}/man1/%{name}.1*
 %{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
-%{_datadir}/applications/%{name}.desktop
+%{_datadir}/applications/mumble.desktop
+%{_datadir}/metainfo/mumble.appdata.xml
 %{_datadir}/mumble/
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/libcelt.so.0.7.0
@@ -184,6 +205,11 @@ mkdir -p %{buildroot}%{_localstatedir}/lib/mumble-server/
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Wed Mar 21 2018 Rex Dieter <rdieter@fedoraproject.org> - 1.2.19-8
+- fix FTBFS (#1555858)
+- pull in upstream appdata (#1501525)
+- use %%make_build %%{?systemd_requires}
+
 * Thu Feb 08 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.19-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
