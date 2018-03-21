@@ -103,7 +103,7 @@ exit 0
 "CONFIG+=no-bundled-speex no-g15 \
 no-embed-qt-translations no-update \
 no-bundled-celt no-bundled-opus packaged \
-no-ice" \
+no-ice c++11" \
 DEFINES+="PLUGIN_PATH=%{_libdir}/%{name}" \
 DEFINES+="DEFAULT_SOUNDSYSTEM=PulseAudio"\
 main.pro
@@ -209,6 +209,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 - fix FTBFS (#1555858)
 - pull in upstream appdata (#1501525)
 - use %%make_build %%{?systemd_requires}
+- build in c++-11 mode (fixes FTBFS on s390x wrt protobuf)
 
 * Thu Feb 08 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.19-7
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
