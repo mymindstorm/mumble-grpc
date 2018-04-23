@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.19
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -33,7 +33,7 @@ BuildRequires:  pulseaudio-libs-devel, speex-devel
 BuildRequires:  speech-dispatcher-devel, libogg-devel
 BuildRequires:  libcap-devel, speexdsp-devel
 BuildRequires:  desktop-file-utils, openssl-devel
-BuildRequires:  libXevie-devel, celt071-devel
+BuildRequires:  celt071-devel
 BuildRequires:  protobuf-compiler, avahi-compat-libdns_sd-devel
 BuildRequires:  libsndfile-devel, protobuf-devel
 BuildRequires:  opus-devel
@@ -205,6 +205,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Mon Apr 23 2018 Filipe Rosset <rosset.filipe@gmail.com> - 1.2.19-9
+- drop deprecated libXevie-devel usage to fix FTBFS on rawhide
+
 * Wed Mar 21 2018 Rex Dieter <rdieter@fedoraproject.org> - 1.2.19-8
 - fix FTBFS (#1555858)
 - pull in upstream appdata (#1501525)
