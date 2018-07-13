@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.19
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -205,6 +205,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.19-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Mon Apr 23 2018 Filipe Rosset <rosset.filipe@gmail.com> - 1.2.19-9
 - drop deprecated libXevie-devel usage to fix FTBFS on rawhide
 
