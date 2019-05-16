@@ -1,0 +1,36 @@
+From 1dc800031abd47b2d891d6564de08278a6fa9e8a Mon Sep 17 00:00:00 2001
+From: Mikkel Krautz <mikkel@krautz.dk>
+Date: Tue, 16 Jan 2018 00:03:20 +0100
+Subject: [PATCH 2/4] Do not link the Linux overlay with '-z now'.
+
+Linking the overlay library with '-z now' requires all target
+processes to have libGL symbols in them at load time.
+If it doesn't, the program will not start at all.
+
+Instead, explicitly use '-z lazy' to defer libGL symbol resolution
+until first use, which is never for non-libGL users.
+
+[This is a backport of 859da4dabec070959b5c06f8d32512990d7ec9c2
+ from the master branch.]
+---
+ overlay_gl/overlay_gl.pro | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/overlay_gl/overlay_gl.pro b/overlay_gl/overlay_gl.pro
+index 97494602..1b5ac17b 100644
+--- a/overlay_gl/overlay_gl.pro
++++ b/overlay_gl/overlay_gl.pro
+@@ -10,6 +10,10 @@ SOURCES = overlay.c
+ LIBS *= -lrt -ldl
+ QMAKE_CFLAGS *= -fvisibility=hidden $(CFLAGS_ADD)
+ QMAKE_LFLAGS -= -Wl,--no-undefined
++
++QMAKE_LFLAGS -= -Wl,-z,now
++QMAKE_LFLAGS += -Wl,-z,lazy
++
+ QMAKE_LFLAGS *= $(LFLAGS_ADD)
+ equals(QMAKE_LINK,g++) {
+   message(Overriding linker)
+-- 
+2.21.0
+

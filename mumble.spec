@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.19
-Release:        12%{?dist}
+Release:        13%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -23,8 +23,13 @@ Patch7:         %{name}-fix-mute-all-audio-players.patch
 # omit potentially harmful compiler flags for release builds
 Patch8:          mumble-1.2.19-cflags.patch
 
-## upstream patches (1.2.x branch)
+## upstream patches: 1.2.x branch
+Patch102: 0002-Do-not-link-the-Linux-overlay-with-z-now.patch
 Patch103: 0003-AudioOutput-do-not-use-non-existant-template-version.patch
+
+## upstream patches: master (1.3) branch
+Patch209: 0009-Murmur-add-support-for-EDH-cipher-suites-and-for-spe.patch
+
 
 BuildRequires:  qt4-devel, boost-devel
 #BuildRequires:  ice-devel
@@ -87,7 +92,10 @@ exit 0
 %prep
 %setup -q
 
-%patch103 -p1 -b .0003
+%patch102 -p1 -b .0102
+%patch103 -p1 -b .0103
+
+%patch209 -p1 -b .0209
 
 %patch1 -p1
 %patch2 -p1 -F 2
@@ -103,7 +111,8 @@ exit 0
 "CONFIG+=no-bundled-speex no-g15 \
 no-embed-qt-translations no-update \
 no-bundled-celt no-bundled-opus packaged \
-no-ice c++11" \
+no-ice c++11 \
+no-oss"
 DEFINES+="PLUGIN_PATH=%{_libdir}/%{name}" \
 DEFINES+="DEFAULT_SOUNDSYSTEM=PulseAudio"\
 main.pro
@@ -205,6 +214,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Thu May 16 2019 Rex Dieter <rdieter@fedoraproject.org> - 1.2.19-13
+- pull in more upstream fixes (ssl ciphers, opengl link flags)
+- CONFIG+=no-oss
+
 * Fri Feb 01 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.19-12
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
 
