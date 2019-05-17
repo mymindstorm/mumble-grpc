@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.19
-Release:        13%{?dist}
+Release:        14%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -38,13 +38,17 @@ BuildRequires:  pulseaudio-libs-devel, speex-devel
 BuildRequires:  speech-dispatcher-devel, libogg-devel
 BuildRequires:  libcap-devel, speexdsp-devel
 BuildRequires:  desktop-file-utils, openssl-devel
-BuildRequires:  celt071-devel
 BuildRequires:  protobuf-compiler, avahi-compat-libdns_sd-devel
 BuildRequires:  libsndfile-devel, protobuf-devel
 BuildRequires:  opus-devel
 BuildRequires:  libappstream-glib
+
+%global no_bundled_celt no-bundled-celt
+%if 0%{?no_bundled_celt:1}
 #Due to naming issues, celt071 is required explicitly
-Requires:       celt071
+BuildRequires:  celt071-devel
+Requires:       celt071%{?_isa}
+%endif
 
 %description
 Mumble provides low-latency, high-quality voice communication for gamers. 
@@ -97,7 +101,9 @@ exit 0
 
 %patch209 -p1 -b .0209
 
+%if 0%{?no_bundled_celt:1}
 %patch1 -p1
+%endif
 %patch2 -p1 -F 2
 %patch3 -p1
 %patch4 -p1
@@ -110,9 +116,9 @@ exit 0
 %{qmake_qt4} \
 "CONFIG+=no-bundled-speex no-g15 \
 no-embed-qt-translations no-update \
-no-bundled-celt no-bundled-opus packaged \
+%{?no_bundled_celt} no-bundled-opus packaged \
 no-ice c++11 \
-no-oss"
+no-oss" \
 DEFINES+="PLUGIN_PATH=%{_libdir}/%{name}" \
 DEFINES+="DEFAULT_SOUNDSYSTEM=PulseAudio"\
 main.pro
@@ -135,8 +141,10 @@ ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so
 ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so.1
 ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so.1.2
 
+%if 0%{?no_bundled_celt:1}
 #symlink for celt071
-ln -s ../libcelt071.so.0.0.0 %{buildroot}%{_libdir}/%{name}/libcelt.so.0.7.0
+ln -s ../libcelt071.so.0.0.0 %{buildroot}%{_libdir}/%{name}/libcelt0.so.0.7.0
+%endif
 
 mkdir -p %{buildroot}%{_sysconfdir}/murmur/
 install -pD scripts/murmur.ini %{buildroot}%{_sysconfdir}/murmur/murmur.ini
@@ -190,8 +198,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %{_datadir}/applications/mumble.desktop
 %{_datadir}/metainfo/mumble.appdata.xml
 %{_datadir}/mumble/
+%if 0%{?no_bundled_celt:1}
 %dir %{_libdir}/%{name}
-%{_libdir}/%{name}/libcelt.so.0.7.0
+%{_libdir}/%{name}/libcelt0.so.0.7.0
+%endif
 
 %files -n murmur
 %license LICENSE
@@ -214,6 +224,10 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Fri May 17 2019 Rex Dieter <rdieter@fedoraproject.org> - 1.2.19-14
+- mumble-1.2.19-13: Unable to find matching CELT codecs with other clients (#1711435)
+- support no_bundled_celt macro
+
 * Thu May 16 2019 Rex Dieter <rdieter@fedoraproject.org> - 1.2.19-13
 - pull in more upstream fixes (ssl ciphers, opengl link flags)
 - CONFIG+=no-oss
