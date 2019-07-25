@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.19
-Release:        14%{?dist}
+Release:        15%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -224,6 +224,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.19-15
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
 * Fri May 17 2019 Rex Dieter <rdieter@fedoraproject.org> - 1.2.19-14
 - mumble-1.2.19-13: Unable to find matching CELT codecs with other clients (#1711435)
 - support no_bundled_celt macro
