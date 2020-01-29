@@ -1,6 +1,6 @@
 Name:           mumble
 Version:        1.2.19
-Release:        15%{?dist}
+Release:        16%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -224,6 +224,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.19-16
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
 * Thu Jul 25 2019 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.19-15
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
