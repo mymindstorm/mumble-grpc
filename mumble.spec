@@ -2,7 +2,7 @@
 
 Name:           mumble
 Version:        1.3.0
-Release:        0.1%{?dist}
+Release:        1%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -212,7 +212,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %changelog
 * Fri Mar 20 2020 Nils Philippsen <nils@tiptoe.de> - 1.3.0-1
 - version 1.3.0
-- update patches and drop obsolete ones
+- update build deps, patches and drop obsolete ones
 - build with Qt 5
 
 * Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.19-16
