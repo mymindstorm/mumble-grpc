@@ -1,38 +1,25 @@
+%global theme_version 1d48b123d2e62dab348e08810787e41a7511be69
+
 Name:           mumble
-Version:        1.2.19
-Release:        16%{?dist}
+Version:        1.3.0
+Release:        0.1%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
 URL:            http://www.mumble.info
 Source0:        https://github.com/mumble-voip/mumble/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz 
-Source1:        murmur.service
-Source2:        mumble.appdata.xml
-Patch1:         %{name}-1.2.4-celt_include_dir.patch
-Patch2:         %{name}-fixspeechd.patch
+Source1:        https://github.com/mumble-voip/mumble-theme/archive/%{theme_version}.tar.gz#/%{name}-theme-%{theme_version}.tar.gz
+Source2:        murmur.service
+Source3:        mumble.appdata.xml
+Patch0:         %{name}-1.3.0-celt071.patch
 # See https://fedoraproject.org/wiki/Packaging:CryptoPolicies
-Patch3:         %{name}-FedoraCryptoPolicyCipherList.patch
-# Disable d-bus rpc, this file is fixed upstream, remove on 1.3.0 release
-Patch4:         %{name}-disablemurmurdbus.patch
+Patch1:         %{name}-1.3.0-fedora-crypto-policy-cipher-list.patch
 # Murmur.ini modified upstream bug #1629 #1904
-Patch5:         %{name}-FixNoBindAtBoot.patch
+Patch2:         %{name}-1.3.0-fix-no-bind-at-boot.patch
 # Murmur will qFatal() if it does not have address to bind on start
-Patch6:         %{name}-murmur_exit_on_no_bind.patch
-# Patch7        https://bugzilla.redhat.com/show_bug.cgi?id=1454438
-Patch7:         %{name}-fix-mute-all-audio-players.patch
-# omit potentially harmful compiler flags for release builds
-Patch8:          mumble-1.2.19-cflags.patch
+Patch3:         %{name}-1.3.0-murmur-exit-on-no-bind.patch
 
-## upstream patches: 1.2.x branch
-Patch102: 0002-Do-not-link-the-Linux-overlay-with-z-now.patch
-Patch103: 0003-AudioOutput-do-not-use-non-existant-template-version.patch
-
-## upstream patches: master (1.3) branch
-Patch209: 0009-Murmur-add-support-for-EDH-cipher-suites-and-for-spe.patch
-
-
-BuildRequires:  qt4-devel, boost-devel
-#BuildRequires:  ice-devel
+BuildRequires:  qt5-devel, boost-devel
 BuildRequires:  alsa-lib-devel
 BuildRequires:  pulseaudio-libs-devel, speex-devel
 BuildRequires:  speech-dispatcher-devel, libogg-devel
@@ -42,6 +29,7 @@ BuildRequires:  protobuf-compiler, avahi-compat-libdns_sd-devel
 BuildRequires:  libsndfile-devel, protobuf-devel
 BuildRequires:  opus-devel
 BuildRequires:  libappstream-glib
+BuildRequires:  libXi-devel
 
 %global no_bundled_celt no-bundled-celt
 %if 0%{?no_bundled_celt:1}
@@ -62,6 +50,8 @@ Summary:    Mumble voice chat server
 Provides:    %{name}-server = %{version}-%{release}
 Requires(pre): shadow-utils
 Requires: qt4-sqlite%{?_isa}
+# To be able to announce the presence of the server via Bonjour.
+Recommends:     avahi
 
 %{?systemd_requires}
 
@@ -94,27 +84,22 @@ useradd -r -g mumble-server -d %{_localstatedir}/lib/%{name}-server/ -s /sbin/no
 exit 0
 
 %prep
-%setup -q
-
-%patch102 -p1 -b .0102
-%patch103 -p1 -b .0103
-
-%patch209 -p1 -b .0209
+%setup -q -b 1
+pushd themes
+rmdir Mumble
+ln -s ../../%{name}-theme-%{theme_version} Mumble
+popd
 
 %if 0%{?no_bundled_celt:1}
-%patch1 -p1
+%patch0 -p1 -b .celt071
 %endif
-%patch2 -p1 -F 2
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1 -b .cflags
+%patch1 -p1 -b .fedora-crypto-policy-cipher-list
+%patch2 -p1 -b .fix-no-bind-at-boot
+%patch3 -p1 -b .murmur-exit-on-no-bind
 
 %build
-%{qmake_qt4} \
-"CONFIG+=no-bundled-speex no-g15 \
+%{qmake_qt5} \
+"CONFIG+=no-bundled-speex no-g15 no-rnnoise \
 no-embed-qt-translations no-update \
 %{?no_bundled_celt} no-bundled-opus packaged \
 no-ice c++11 \
@@ -148,8 +133,8 @@ ln -s ../libcelt071.so.0.0.0 %{buildroot}%{_libdir}/%{name}/libcelt0.so.0.7.0
 
 mkdir -p %{buildroot}%{_sysconfdir}/murmur/
 install -pD scripts/murmur.ini %{buildroot}%{_sysconfdir}/murmur/murmur.ini
-ln -s /etc/murmur/murmur.ini %{buildroot}%{_sysconfdir}/%{name}-server.ini
-install -pD -m0644 %{SOURCE1} %{buildroot}%{_unitdir}/murmur.service
+ln -s murmur/murmur.ini %{buildroot}%{_sysconfdir}/%{name}-server.ini
+install -pD -m0644 %{SOURCE2} %{buildroot}%{_unitdir}/murmur.service
 
 mkdir -p %{buildroot}%{_datadir}/%{name}/
 install -pD scripts/%{name}-overlay %{buildroot}%{_bindir}/%{name}-overlay
@@ -168,7 +153,7 @@ install -pD -m0644 icons/%{name}.svg %{buildroot}%{_datadir}/icons/hicolor/scala
 install -pD -m0644 scripts/mumble.desktop %{buildroot}%{_datadir}/applications/mumble.desktop
 
 # install appdata
-install -pD -m0644 %{SOURCE2} %{buildroot}%{_datadir}/metainfo/mumble.appdata.xml
+install -pD -m0644 %{SOURCE3} %{buildroot}%{_datadir}/metainfo/mumble.appdata.xml
 
 #dir for mumble-server.sqlite
 mkdir -p %{buildroot}%{_localstatedir}/lib/mumble-server/
@@ -191,7 +176,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %files
 %license LICENSE
 %doc README README.Linux CHANGES
-%doc scripts/weblist*
+%doc scripts/server/*/weblist*
 %{_bindir}/%{name}
 %{_mandir}/man1/%{name}.1*
 %{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
@@ -215,8 +200,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %dir %attr(-,mumble-server,mumble-server) %{_localstatedir}/lib/mumble-server/
 
 %files plugins
-%{_libdir}/%{name}/libmanual.so
+%{_libdir}/%{name}/libl4d2.so
 %{_libdir}/%{name}/liblink.so
+%{_libdir}/%{name}/librl.so
 
 %files overlay
 %{_bindir}/%{name}-overlay
@@ -224,6 +210,11 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Fri Mar 20 2020 Nils Philippsen <nils@tiptoe.de> - 1.3.0-1
+- version 1.3.0
+- update patches and drop obsolete ones
+- build with Qt 5
+
 * Wed Jan 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 1.2.19-16
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
 

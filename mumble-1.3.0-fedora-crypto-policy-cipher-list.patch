@@ -1,0 +1,11 @@
+diff -up mumble-1.3.0/scripts/murmur.ini.fedora-crypto-policy-cipher-list mumble-1.3.0/scripts/murmur.ini
+--- mumble-1.3.0/scripts/murmur.ini.fedora-crypto-policy-cipher-list	2019-10-24 13:55:41.505251692 +0200
++++ mumble-1.3.0/scripts/murmur.ini	2019-10-24 13:56:38.853142219 +0200
+@@ -246,6 +246,7 @@ allowping=true
+ ; Murmur server, and can remove the ability for older Mumble clients to be able
+ ; to connect to it.
+ ;sslCiphers=EECDH+AESGCM:EDH+aRSA+AESGCM:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:AES256-SHA:AES128-SHA
++sslCiphers="PROFILE=SYSTEM"
+ 
+ ; If Murmur is started as root, which user should it switch to?
+ ; This option is ignored if Murmur isn't started with root privileges.
