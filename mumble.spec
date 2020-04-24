@@ -19,7 +19,9 @@ Patch2:         %{name}-1.3.0-fix-no-bind-at-boot.patch
 # Murmur will qFatal() if it does not have address to bind on start
 Patch3:         %{name}-1.3.0-murmur-exit-on-no-bind.patch
 
+BuildRequires:  qt5-linguist
 BuildRequires:  qt5-qtbase-devel
+BuildRequires:  qt5-qtsvg-devel
 BuildRequires:  boost-devel
 BuildRequires:  alsa-lib-devel
 BuildRequires:  pulseaudio-libs-devel, speex-devel
