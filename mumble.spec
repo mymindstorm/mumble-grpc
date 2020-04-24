@@ -2,7 +2,7 @@
 
 Name:           mumble
 Version:        1.3.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
@@ -19,7 +19,8 @@ Patch2:         %{name}-1.3.0-fix-no-bind-at-boot.patch
 # Murmur will qFatal() if it does not have address to bind on start
 Patch3:         %{name}-1.3.0-murmur-exit-on-no-bind.patch
 
-BuildRequires:  qt5-devel, boost-devel
+BuildRequires:  qt5-qtbase-devel
+BuildRequires:  boost-devel
 BuildRequires:  alsa-lib-devel
 BuildRequires:  pulseaudio-libs-devel, speex-devel
 BuildRequires:  speech-dispatcher-devel, libogg-devel
@@ -49,7 +50,8 @@ won't be audible to other players.
 Summary:    Mumble voice chat server
 Provides:    %{name}-server = %{version}-%{release}
 Requires(pre): shadow-utils
-Requires: qt4-sqlite%{?_isa}
+# verify
+Requires: qt5-qtbase-sqlite%{?_isa}
 # To be able to announce the presence of the server via Bonjour.
 Recommends:     avahi
 
@@ -210,6 +212,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %{_mandir}/man1/mumble-overlay.1*
 
 %changelog
+* Fri Apr 24 2020 Rex Dieter <rdieter@fedoraproject.org> - 1.3.0-2
+- fix Qt5 deps
+
 * Fri Mar 20 2020 Nils Philippsen <nils@tiptoe.de> - 1.3.0-1
 - version 1.3.0
 - update build deps, patches and drop obsolete ones
