@@ -1,6 +1,6 @@
-# Build -python subpackage
+# DO NOT Build -python subpackage
 %bcond_with python
-# Build -java subpackage
+# DO NOT Build -java subpackage
 %bcond_with java
 
 #global rcver rc2
@@ -229,6 +229,7 @@ rm -f src/solaris/libstdc++.la
 iconv -f iso8859-1 -t utf-8 CONTRIBUTORS.txt > CONTRIBUTORS.txt.utf8
 mv CONTRIBUTORS.txt.utf8 CONTRIBUTORS.txt
 export PTHREAD_LIBS="-lpthread"
+export CXXFLAGS="$CXXFLAGS -std=c++11"
 ./autogen.sh
 %configure
 
