@@ -58,7 +58,8 @@ Requires(pre): shadow-utils
 # verify
 Requires: qt5-qtbase-sqlite%{?_isa}
 # To be able to announce the presence of the server via Bonjour.
-Recommends:     avahi
+# EPEL 7 does not like this line
+# Recommends:     avahi
 
 %{?systemd_requires}
 
