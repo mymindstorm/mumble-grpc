@@ -29,10 +29,13 @@ BuildRequires:  speech-dispatcher-devel, libogg-devel
 BuildRequires:  libcap-devel, speexdsp-devel
 BuildRequires:  desktop-file-utils, openssl-devel
 BuildRequires:  protobuf-compiler, avahi-compat-libdns_sd-devel
-BuildRequires:  libsndfile-devel, protobuf-devel
+BuildRequires:  libsndfile-devel
 BuildRequires:  opus-devel
 BuildRequires:  libappstream-glib
 BuildRequires:  libXi-devel
+BuildRequires:  protobuf-devel, protobuf-c-devel
+BuildRequires:  protobuf-compiler, protobuf-c-compiler
+BuildRequires:  grpc-devel, grpc-plugins
 
 %global no_bundled_celt no-bundled-celt
 %if 0%{?no_bundled_celt:1}
@@ -107,7 +110,7 @@ popd
 no-embed-qt-translations no-update \
 %{?no_bundled_celt} no-bundled-opus packaged \
 no-ice c++11 \
-no-oss" \
+no-oss grpc" \
 DEFINES+="PLUGIN_PATH=%{_libdir}/%{name}" \
 DEFINES+="DEFAULT_SOUNDSYSTEM=PulseAudio"\
 main.pro
