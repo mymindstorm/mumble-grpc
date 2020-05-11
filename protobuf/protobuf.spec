@@ -1,7 +1,7 @@
 # Build -python subpackage
-# bcond_without python
+%bcond_with python
 # Build -java subpackage
-# bcond_without java
+%bcond_with java
 
 #global rcver rc2
 
