@@ -114,7 +114,7 @@ no-ice c++11 \
 no-oss grpc no-client" \
 DEFINES+="PLUGIN_PATH=%{_libdir}/%{name}" \
 DEFINES+="DEFAULT_SOUNDSYSTEM=PulseAudio"\
-CXXFLAGS+=" -Winvalid-pch"
+CXXFLAGS+=" -Winvalid-pch" \
 main.pro
 
 %make_build release
