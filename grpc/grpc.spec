@@ -1,6 +1,6 @@
 Name: grpc
-Version: 1.26.0
-Release: 2%{?dist}
+Version: 1.24.3
+Release: 3%{?dist}
 Summary: Modern, open source, high-performance remote procedure call (RPC) framework
 License: ASL 2.0
 URL: https://www.grpc.io
@@ -20,9 +20,6 @@ BuildRequires: gperftools-devel
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
 BuildRequires: python36-Cython
-
-Patch0: grpc-0001-enforce-system-crypto-policies.patch
-Patch2: grpc-0003-use-shell-loop-instead-makefile-function.patch
 
 %description
 gRPC is a modern open source high performance RPC framework that can run in any
@@ -106,17 +103,8 @@ find %{buildroot} -type f -name '*.a' -exec rm -f {} \;
 %files
 %doc README.md
 %license LICENSE
-%{_libdir}/libaddress_sorting.so.9*
-%{_libdir}/libgpr.so.9*
-%{_libdir}/libgrpc++.so.1*
-%{_libdir}/libgrpc++_error_details.so.1*
-%{_libdir}/libgrpc++_reflection.so.1*
-%{_libdir}/libgrpc++_unsecure.so.1*
-%{_libdir}/libgrpc.so.9*
-%{_libdir}/libgrpc_cronet.so.9*
-%{_libdir}/libgrpc_unsecure.so.9*
-%{_libdir}/libgrpcpp_channelz.so.1*
-%{_libdir}/libup*.so.9*
+%{_libdir}/*.so.1*
+%{_libdir}/*.so.8*
 %{_datadir}/grpc
 
 %files cli
@@ -128,17 +116,7 @@ find %{buildroot} -type f -name '*.a' -exec rm -f {} \;
 %{_bindir}/grpc_*_plugin
 
 %files devel
-%{_libdir}/libaddress_sorting.so
-%{_libdir}/libgpr.so
-%{_libdir}/libgrpc++.so
-%{_libdir}/libgrpc++_error_details.so
-%{_libdir}/libgrpc++_reflection.so
-%{_libdir}/libgrpc++_unsecure.so
-%{_libdir}/libgrpc.so
-%{_libdir}/libgrpc_cronet.so
-%{_libdir}/libgrpc_unsecure.so
-%{_libdir}/libgrpcpp_channelz.so
-%{_libdir}/libupb.so
+%{_libdir}/*.so
 %{_libdir}/pkgconfig/*
 %{_includedir}/grpc
 %{_includedir}/grpc++
