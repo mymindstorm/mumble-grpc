@@ -73,10 +73,6 @@ Python3 bindings for gRPC library.
 
 %prep
 %autosetup -N
-%patch0 -p1
-#%patch1 -p1
-%patch2 -p1
-#%patch3 -p1
 sed -i 's:^prefix ?= .*:prefix ?= %{_prefix}:' Makefile
 sed -i 's:$(prefix)/lib:$(prefix)/%{_lib}:' Makefile
 sed -i 's:^GTEST_LIB =.*::' Makefile
