@@ -158,6 +158,16 @@ mkdir -p %{buildroot}%{_localstatedir}/lib/mumble-server/
 %{_mandir}/man1/murmurd.1*
 %dir %attr(-,mumble-server,mumble-server) %{_localstatedir}/lib/mumble-server/
 
+%files plugins
+%{_libdir}/%{name}/libl4d2.so
+%{_libdir}/%{name}/liblink.so
+%{_libdir}/%{name}/librl.so
+
+%files overlay
+%{_bindir}/%{name}-overlay
+%{_libdir}/%{name}/lib%{name}*
+%{_mandir}/man1/mumble-overlay.1*
+
 %changelog
 * Fri Apr 24 2020 Rex Dieter <rdieter@fedoraproject.org> - 1.3.0-2
 - fix Qt5 deps
