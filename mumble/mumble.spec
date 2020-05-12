@@ -2,7 +2,7 @@
 
 Name:           mumble
 Version:        1.3.0
-Release:        50%{?dist}
+Release:        51%{?dist}
 Summary:        Voice chat suite aimed at gamers
 Obsoletes:      mumble-protocol < 1.2.10-2
 License:        BSD
