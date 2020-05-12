@@ -24,6 +24,7 @@ BuildRequires:  gcc-c++
 BuildRequires:  libtool
 BuildRequires:  pkgconfig
 BuildRequires:  zlib-devel
+BuildRequires:  libatomic
 
 %description
 Protocol Buffers are a way of encoding structured data in an efficient
