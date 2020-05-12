@@ -36,6 +36,7 @@ BuildRequires:  libXi-devel
 BuildRequires:  protobuf-devel, protobuf-c-devel
 BuildRequires:  protobuf-compiler, protobuf-c-compiler
 BuildRequires:  grpc-devel, grpc-plugins
+BuildRequires:  python3-devel
 
 %global no_bundled_celt no-bundled-celt
 %if 0%{?no_bundled_celt:1}
