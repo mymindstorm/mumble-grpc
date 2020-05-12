@@ -111,7 +111,7 @@ popd
 no-embed-qt-translations no-update \
 %{?no_bundled_celt} no-bundled-opus packaged \
 no-ice c++11 \
-no-oss grpc" \
+no-oss grpc no-client" \
 DEFINES+="PLUGIN_PATH=%{_libdir}/%{name}" \
 DEFINES+="DEFAULT_SOUNDSYSTEM=PulseAudio"\
 main.pro
@@ -181,20 +181,20 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 %postun -n murmur
 %systemd_postun_with_restart murmur.service
 
-%files
-%license LICENSE
-%doc README README.Linux CHANGES
-%doc scripts/server/*/weblist*
-%{_bindir}/%{name}
-%{_mandir}/man1/%{name}.1*
-%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
-%{_datadir}/applications/mumble.desktop
-%{_datadir}/metainfo/mumble.appdata.xml
-%{_datadir}/mumble/
-%if 0%{?no_bundled_celt:1}
-%dir %{_libdir}/%{name}
-%{_libdir}/%{name}/libcelt0.so.0.7.0
-%endif
+# %files
+# %license LICENSE
+# %doc README README.Linux CHANGES
+# %doc scripts/server/*/weblist*
+# %{_bindir}/%{name}
+# %{_mandir}/man1/%{name}.1*
+# %{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
+# %{_datadir}/applications/mumble.desktop
+# %{_datadir}/metainfo/mumble.appdata.xml
+# %{_datadir}/mumble/
+# %if 0%{?no_bundled_celt:1}
+# %dir %{_libdir}/%{name}
+# %{_libdir}/%{name}/libcelt0.so.0.7.0
+# %endif
 
 %files -n murmur
 %license LICENSE
