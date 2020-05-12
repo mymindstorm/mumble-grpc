@@ -230,7 +230,7 @@ rm -f src/solaris/libstdc++.la
 iconv -f iso8859-1 -t utf-8 CONTRIBUTORS.txt > CONTRIBUTORS.txt.utf8
 mv CONTRIBUTORS.txt.utf8 CONTRIBUTORS.txt
 export PTHREAD_LIBS="-lpthread"
-export CXXFLAGS="$CXXFLAGS -fPIC"
+export CXXFLAGS="$CXXFLAGS -g -fPIC"
 ./autogen.sh
 %configure
 
