@@ -119,57 +119,23 @@ main.pro
 %make_build release
 
 %install
-install -pD -m0755 release/%{name} %{buildroot}%{_bindir}/%{name}
 install -pD -m0755 release/murmurd %{buildroot}%{_sbindir}/murmurd
 ln -s murmurd %{buildroot}%{_sbindir}/%{name}-server
-
-#translations
-mkdir -p %{buildroot}/%{_datadir}/%{name}/translations
-install -pm 644 src/%{name}/*.qm %{buildroot}/%{_datadir}/%{name}/translations
-
-mkdir -p %{buildroot}%{_libdir}/%{name}/
-install -p release/libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/
-install -p release/plugins/*.so %{buildroot}%{_libdir}/%{name}/
-ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so
-ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so.1
-ln -s libmumble.so.%{version} %{buildroot}%{_libdir}/%{name}/libmumble.so.1.2
-
-%if 0%{?no_bundled_celt:1}
-#symlink for celt071
-ln -s ../libcelt071.so.0.0.0 %{buildroot}%{_libdir}/%{name}/libcelt0.so.0.7.0
-%endif
 
 mkdir -p %{buildroot}%{_sysconfdir}/murmur/
 install -pD scripts/murmur.ini %{buildroot}%{_sysconfdir}/murmur/murmur.ini
 ln -s murmur/murmur.ini %{buildroot}%{_sysconfdir}/%{name}-server.ini
 install -pD -m0644 %{SOURCE2} %{buildroot}%{_unitdir}/murmur.service
 
-mkdir -p %{buildroot}%{_datadir}/%{name}/
-install -pD scripts/%{name}-overlay %{buildroot}%{_bindir}/%{name}-overlay
-
 #man pages
 mkdir -p %{buildroot}%{_mandir}/man1/
 install -pD -m0644 man/murmurd.1 %{buildroot}%{_mandir}/man1/
-install -pD -m0644 man/mumble* %{buildroot}%{_mandir}/man1/
-install -pD -m0664 man/mumble-overlay.1 %{buildroot}%{_mandir}/man1/mumble-overlay.1
-
-#icons
-mkdir -p %{buildroot}%{_datadir}/icons/%{name}
-install -pD -m0644 icons/%{name}.svg %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
-
-# install desktop file
-install -pD -m0644 scripts/mumble.desktop %{buildroot}%{_datadir}/applications/mumble.desktop
-
-# install appdata
-install -pD -m0644 %{SOURCE3} %{buildroot}%{_datadir}/metainfo/mumble.appdata.xml
 
 #dir for mumble-server.sqlite
 mkdir -p %{buildroot}%{_localstatedir}/lib/mumble-server/
 
 
 %check
-appstream-util validate-relax --nonet %{buildroot}%{_datadir}/metainfo/mumble.appdata.xml
-desktop-file-validate %{buildroot}%{_datadir}/applications/mumble.desktop
 
 
 %post -n murmur
