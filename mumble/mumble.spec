@@ -56,7 +56,7 @@ Summary:    Mumble voice chat server
 Provides:    %{name}-server = %{version}-%{release}
 Requires(pre): shadow-utils
 # verify
-Requires: qt5-qtbase-sqlite%{?_isa}
+# Requires: qt5-qtbase-sqlite%{?_isa}
 # To be able to announce the presence of the server via Bonjour.
 # epel 7 does not like this
 # Recommends:     avahi
